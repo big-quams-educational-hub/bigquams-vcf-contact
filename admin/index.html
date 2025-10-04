@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VCF Contacts - Big Quams Connect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .panel {
+      max-width: 500px;
+      margin: 80px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      text-align: center;
+      color: #007bff;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    table th, table td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    .download {
+      margin-top: 15px;
+      width: 100%;
+      padding: 12px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .download:hover {
+background: #1e7e34;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="panel" id="admin-panel">
+    <h2>VCF Contact List</h2>
+    <div id="data-table">Loading contacts...</div>
+    <button class="download" onclick="downloadVCF()">Download VCF File</button>
+  </div>
+
+  <script>
+    const API_URL = "https://sheetdb.io/api/v1/203f2csgdcsp0";
+
+    function fetchData() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.length) {
+            document.getElementById("data-table").innerHTML = "No contacts found.";
+            return;
+          }
+
+          let table = `<table><tr><th>Name</th><th>State</th><th>Phone</th></tr>`;
+          data.forEach(entry => {
+            table += `<tr><td>entry.name</td><td>{entry.state}</td><td>entry.phone</td></tr>`;
+          );
+          table += `</table>`;
+          document.getElementById("data-table").innerHTML = table;
+        )
+        .catch(() => 
+          document.getElementById("data-table").innerHTML = "Failed to load data.";
+        );
+    
+
+    function downloadVCF() 
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => 
+          let vcf = "";
+          data.forEach(entry =>
+vcf += `BEGIN:VCARD:3.0:{entry.name}\nTEL;TYPE=CELL:${entry.phone}\nEND:VCARD\n`;
+          });
+
+          const blob = new Blob([vcf], { type: "text/vcard" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "bigquams_contacts.vcf";
+          link.click();
+        });
+    }
+
+    fetchData();
+  </script>
+
+</body>
+  </html>
