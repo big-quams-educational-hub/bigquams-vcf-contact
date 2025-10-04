@@ -2,110 +2,250 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>VCF Contacts - Big Quams Connect</title>
+  <title>Big Quams Connect - Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    :root {
+      --primary-blue: #007BFF; /* Main Blue for buttons, headings */
+      --secondary-orange: #FF8C00; /* Accent Orange for highlights */
+      --tertiary-green: #28A745; /* Green for success messages, WhatsApp links */
+      --white-bg: #FFFFFF; /* Clean white for card backgrounds */
+      --light-gray-bg: #F8F9FA; /* Very light gray for body background */
+      
+      --text-color-dark: #212529; /* Dark text for readability */
+      --text-color-light: #6C757D; /* Lighter text for descriptions/small print */
+      --border-color: #CED4DA; /* Subtle border for inputs */
+      
+      --shadow-light: rgba(0,0,0,0.08);
+      --shadow-medium: rgba(0,0,0,0.12);
+      
+      --info-bg: #FFF3CD; /* Light yellow for info box */
+      --info-border: #FFECB5;
+      --info-text: #856404;
+      --info-strong: #6a5301;
+
+      --success-bg: #D4EDDA; /* Lighter green for success message */
+      --success-border: #C3E6CB;
+      --success-text: #155724;
+      
+      --whatsapp-link-color: var(--tertiary-green);
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f9;
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
+      background: var(--light-gray-bg);
       margin: 0;
       padding: 0;
+      display: flex;
+      flex-direction: column; /* Allow content and footer to stack */
+      align-items: center; /* Center horizontally */
+      min-height: 100vh;
+      color: var(--text-color-dark);
+      line-height: 1.6;
+    }
+
+    .header {
+        width: 100%;
+        background-color: var(--primary-blue);
+        color: var(--white-bg);
+        padding: 15px 0;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .header h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
     }
 
     .panel {
-      max-width: 500px;
-      margin: 80px auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 900px; /* Wider panel for table data */
+      width: 90%;
+      margin: 30px auto; /* Adjust margin for header and footer */
+      background: var(--white-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px var(--shadow-medium);
+      flex-grow: 1; /* Allow panel to take up available space */
     }
 
     h2 {
       text-align: center;
-      color: #007bff;
+      color: var(--primary-blue);
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+      font-weight: 700;
     }
 
     table {
       width: 100%;
       margin-top: 20px;
       border-collapse: collapse;
+      background-color: var(--white-bg); /* Ensure table background is white */
+      border-radius: 8px; /* Rounded corners for the table itself */
+      overflow: hidden; /* Ensures rounded corners apply to content */
     }
 
     table th, table td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      font-size: 14px;
+      border: 1px solid var(--border-color);
+      padding: 12px 15px;
+      font-size: 0.95rem;
       text-align: left;
+      color: var(--text-color-dark);
+    }
+    table th {
+        background-color: var(--light-gray-bg); /* Lighter header for table */
+        font-weight: 600;
+        color: var(--primary-blue);
+    }
+    table tr:nth-child(even) {
+        background-color: #fcfdfe; /* Subtle stripe for readability */
     }
 
-    .download {
-      margin-top: 15px;
-      width: 100%;
-      padding: 12px;
-      background: #28a745;
+
+    .download-button { /* Renamed class for consistency */
+      display: block;
+      margin: 30px auto 0; /* Centered, with space above */
+      width: fit-content; /* Adjust width to content */
+      min-width: 200px;
+      padding: 15px 30px;
+      background-color: var(--tertiary-green); /* Green brand color */
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2); /* Green shadow */
+      text-decoration: none; /* For if it's an <a> tag */
+    }
+    .download-button:hover {
+      background-color: #218838; /* Darker green on hover */
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
+    }
+    .download-button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
+    }
+    
+    .data-load-message {
+        text-align: center;
+        font-size: 1.1rem;
+        color: var(--text-color-light);
+        padding: 20px;
     }
 
-    .download:hover {
-background: #1e7e34;
+    .footer-love {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--text-color-light);
+        margin-top: 30px;
+        padding-bottom: 15px;
+        width: 100%;
+    }
+    .footer-love a {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 500;
     }
   </style>
 </head>
 <body>
+  <div class="header">
+      <h1>Big Quams Connect Admin</h1>
+  </div>
 
   <div class="panel" id="admin-panel">
     <h2>VCF Contact List</h2>
-    <div id="data-table">Loading contacts...</div>
-    <button class="download" onclick="downloadVCF()">Download VCF File</button>
+    <div id="data-table" class="data-load-message">Loading contacts...</div>
+    <button class="download-button" onclick="downloadVCF()">Download VCF File</button>
+  </div>
+
+  <div class="footer-love">
+      Created with ❤️ by <a href="#" target="_blank">Big Quams</a>
   </div>
 
   <script>
-    const API_URL = "https://sheetdb.io/api/v1/203f2csgdcsp0";
+    const API_URL = "https://sheetdb.io/api/v1/203f2csgdcsp0"; // Ensure this is your correct SheetDB URL
 
     function fetchData() {
       fetch(API_URL)
         .then(res => res.json())
         .then(data => {
-          if (!data.length) {
-            document.getElementById("data-table").innerHTML = "No contacts found.";
+          const dataTableDiv = document.getElementById("data-table");
+          if (!data || data.length === 0) { // Check for empty array
+            dataTableDiv.innerHTML = "<p class='data-load-message'>No contacts found.</p>";
             return;
           }
 
-          let table = `<table><tr><th>Name</th><th>State</th><th>Phone</th></tr>`;
+          let tableHtml = `<table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>State</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
           data.forEach(entry => {
-            table += `<tr><td>entry.name</td><td>{entry.state}</td><td>entry.phone</td></tr>`;
-          );
-          table += `</table>`;
-          document.getElementById("data-table").innerHTML = table;
-        )
-        .catch(() => 
-          document.getElementById("data-table").innerHTML = "Failed to load data.";
-        );
-    
+            // Ensure data fields exist to prevent errors
+            const name = entry.name || 'N/A';
+            const state = entry.state || 'N/A';
+            const phone = entry.phone || 'N/A';
 
-    function downloadVCF() 
-      fetch(API_URL)
-        .then(res => res.json())
-        .then(data => 
-          let vcf = "";
-          data.forEach(entry =>
-vcf += `BEGIN:VCARD:3.0:{entry.name}\nTEL;TYPE=CELL:${entry.phone}\nEND:VCARD\n`;
+            // Correctly interpolate variables using template literals
+            tableHtml += `<tr>
+                            <td>${name}</td>
+                            <td>${state}</td>
+                            <td>${phone}</td>
+                          </tr>`;
           });
-
-          const blob = new Blob([vcf], { type: "text/vcard" });
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.download = "bigquams_contacts.vcf";
-          link.click();
+          tableHtml += `</tbody></table>`;
+          dataTableDiv.innerHTML = tableHtml;
+        })
+        .catch(error => { // Catch block for fetch errors
+          console.error("Error fetching data:", error);
+          document.getElementById("data-table").innerHTML = "<p class='data-load-message'>Failed to load data. Please try again later.</p>";
         });
     }
 
-    fetchData();
+    function downloadVCF() { // Corrected syntax: Added opening brace
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          let vcfContent = "";
+          data.forEach(entry => {
+            const name = entry.name || 'Unknown'; // Default if name is missing
+            const phone = entry.phone || '';      // Default if phone is missing
+
+            if (phone) { // Only add if phone number exists
+              vcfContent += `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
+            }
+          });
+
+          if (vcfContent) { // Only create blob if there's content
+            const blob = new Blob([vcfContent], { type: "text/vcard;charset=utf-8" }); // Added charset
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "bigquams_contacts.vcf";
+            document.body.appendChild(link); // Append to body to ensure it works
+            link.click();
+            document.body.removeChild(link); // Clean up
+            URL.revokeObjectURL(link.href); // Free up memory
+          } else {
+            alert("No contacts with phone numbers available to download.");
+          }
+        })
+        .catch(error => {
+          console.error("Error downloading VCF:", error);
+          alert("Failed to download VCF file. Please try again.");
+        });
+    }
+
+    fetchData(); // Call fetchData on page load
   </script>
 
 </body>
