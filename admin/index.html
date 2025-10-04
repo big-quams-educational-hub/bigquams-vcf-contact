@@ -161,7 +161,7 @@
   <div class="panel" id="admin-panel">
     <h2>VCF Contact List</h2>
     <div id="data-table" class="data-load-message">Loading contacts...</div>
-    <button class="download-button" onclick="downloadVCF()">Download VCF File</button>
+    <button class="download-button" onclick="downloadVCF()">Download All VCF Files</button>
   </div>
 
   <div class="footer-love">
@@ -187,6 +187,7 @@
                                     <th>Name</th>
                                     <th>State</th>
                                     <th>Phone</th>
+                                    <th>Member Type</th> <!-- Added Member Type column header -->
                                 </tr>
                             </thead>
                             <tbody>`;
@@ -195,12 +196,14 @@
             const name = entry.name || 'N/A';
             const state = entry.state || 'N/A';
             const phone = entry.phone || 'N/A';
+            const memberType = entry.membertype || 'N/A'; // Get membertype
 
             // Correctly interpolate variables using template literals
             tableHtml += `<tr>
                             <td>${name}</td>
                             <td>${state}</td>
                             <td>${phone}</td>
+                            <td>${memberType}</td> <!-- Display membertype -->
                           </tr>`;
           });
           tableHtml += `</tbody></table>`;
@@ -212,36 +215,69 @@
         });
     }
 
-    function downloadVCF() { // Corrected syntax: Added opening brace
+    function downloadVCF() {
       fetch(API_URL)
         .then(res => res.json())
         .then(data => {
-          let vcfContent = "";
+          let oldMembersVCFContent = "";
+          let newMembersVCFContent = "";
+
           data.forEach(entry => {
-            const name = entry.name || 'Unknown'; // Default if name is missing
-            const phone = entry.phone || '';      // Default if phone is missing
+            const name = entry.name || 'Unknown';
+            const phone = entry.phone || '';
+            // Make sure this matches your actual column name exactly: 'membertype'
+            const memberType = entry.membertype ? entry.membertype.toLowerCase() : ''; 
 
             if (phone) { // Only add if phone number exists
-              vcfContent += `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
+              const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
+              
+              if (memberType === 'old') {
+                oldMembersVCFContent += vcardEntry;
+              } else if (memberType === 'new') {
+                newMembersVCFContent += vcardEntry;
+              }
+              // Contacts with no 'membertype' or an unrecognized one will be skipped for these specific files
             }
           });
 
-          if (vcfContent) { // Only create blob if there's content
-            const blob = new Blob([vcfContent], { type: "text/vcard;charset=utf-8" }); // Added charset
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "bigquams_contacts.vcf";
-            document.body.appendChild(link); // Append to body to ensure it works
-            link.click();
-            document.body.removeChild(link); // Clean up
-            URL.revokeObjectURL(link.href); // Free up memory
-          } else {
-            alert("No contacts with phone numbers available to download.");
+          // Function to create and trigger download
+          const triggerDownload = (content, filename) => {
+            if (content) {
+              const blob = new Blob([content], { type: "text/vcard;charset=utf-8" });
+              const link = document.createElement("a");
+              link.href = URL.createObjectURL(blob);
+              link.download = filename;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(link.href);
+              console.log(`Downloaded: ${filename}`);
+            } else {
+              console.log(`No content for: ${filename}`);
+            }
+          };
+
+          // Trigger downloads for old and new members
+          let downloadsInitiated = 0;
+          if (oldMembersVCFContent) {
+            triggerDownload(oldMembersVCFContent, "bigquams_old_members.vcf");
+            downloadsInitiated++;
           }
+          if (newMembersVCFContent) {
+            triggerDownload(newMembersVCFContent, "bigquams_new_members.vcf");
+            downloadsInitiated++;
+          }
+          
+          if (downloadsInitiated === 0) {
+            alert("No contacts classified as 'Old' or 'New' with phone numbers available to download.");
+          } else {
+            alert(`Initiated download for ${downloadsInitiated} VCF file(s). Check your downloads folder.`);
+          }
+
         })
         .catch(error => {
           console.error("Error downloading VCF:", error);
-          alert("Failed to download VCF file. Please try again.");
+          alert("Failed to download VCF files. Please try again.");
         });
     }
 
@@ -249,4 +285,4 @@
   </script>
 
 </body>
-  </html>
+</html>
