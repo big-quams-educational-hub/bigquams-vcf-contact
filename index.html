@@ -242,7 +242,7 @@
     <form id="contact-form">
       <div class="form-group">
         <label for="name">Your Name:</label>
-        <input type="text" id="name" name="name" placeholder="e.g., Kemi, Broda Segun" required>
+        <input type="text" id="name" name="name" placeholder="e.g., Danny, Bella" required>
       </div>
 
       <div class="form-group">
@@ -257,7 +257,7 @@
         <label for="phone">Phone Number:</label>
         <div class="phone-input-group">
             <span class="phone-prefix">🇳🇬 +234</span>
-            <input type="tel" id="phone" name="phone" placeholder="e.g., 801 234 5678" required>
+            <input type="tel" id="phone" name="phone" placeholder="e.g., 801 234 5678" required pattern="[7-9]{1}[0-1]{1}[0-9]{8}">
         </div>
       </div>
 
@@ -285,10 +285,10 @@
     const FORM_API_URL = "https://sheetdb.io/api/v1/203f2csgdcsp0"; // Your SheetDB URL for submissions
     const form = document.getElementById('contact-form');
     const successMessage = document.getElementById('success-message');
-    const stateSelect = document.getElementById('state'); // Changed from stateCheckboxesDiv
+    const stateSelect = document.getElementById('state');
 
     const nigerianStates = [
-      "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Ad Abuja", "Bauchi", "Bayelsa", "Benue", "Borno", 
+      "Abia", "Adamawa", "Akwa Ibom", "Anambra", "FCT Abuja", "Bauchi", "Bayelsa", "Benue", "Borno", 
       "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe", "Imo", "Jigawa", "Kaduna", 
       "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", 
       "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"
@@ -313,4 +313,42 @@
 
       // Phone number formatting
       let phoneNumber = data.phone.replace(/\s/g, ''); // Remove spaces
-      if (!phoneNumber.startsWith('+234'))
+      // Ensure the phone number starts with '234' after removing leading '0' if present
+      if (phoneNumber.startsWith('0')) {
+        phoneNumber = phoneNumber.substring(1);
+      }
+      if (!phoneNumber.startsWith('234')) {
+        phoneNumber = '234' + phoneNumber;
+      }
+      data.phone = `+${phoneNumber}`; // Add the '+' prefix for consistency
+
+      // Log data for debugging (optional)
+      console.log("Submitting data:", data);
+
+      fetch(FORM_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: [data] }), // SheetDB expects an array of objects
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(result => {
+        console.log('Success:', result);
+        form.reset(); // Clear the form
+        form.style.display = 'none'; // Hide the form
+        successMessage.style.display = 'block'; // Show the success message
+      })
+      .catch(error => {
+        console.error('Error!', error);
+        alert('There was an error submitting your details. Please try again.'); // User feedback on error
+      });
+    });
+  </script>
+</body>
+  </html>
