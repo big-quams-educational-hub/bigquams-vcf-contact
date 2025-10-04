@@ -5,76 +5,173 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Big Quams Connect - VCF Contact</title>
   <style>
+    :root {
+      --primary-blue: #007BFF; /* Main Blue for buttons, headings */
+      --secondary-orange: #FF8C00; /* Accent Orange for highlights */
+      --tertiary-green: #28A745; /* Green for success messages, WhatsApp links */
+      --white-bg: #FFFFFF; /* Clean white for card backgrounds */
+      --light-gray-bg: #F8F9FA; /* Very light gray for body background */
+      
+      --text-color-dark: #212529; /* Dark text for readability */
+      --text-color-light: #6C757D; /* Lighter text for descriptions/small print */
+      --border-color: #CED4DA; /* Subtle border for inputs */
+      
+      --shadow-light: rgba(0,0,0,0.08);
+      --shadow-medium: rgba(0,0,0,0.12);
+      
+      --info-bg: #FFF3CD; /* Light yellow for info box */
+      --info-border: #FFECB5;
+      --info-text: #856404;
+      --info-strong: #6a5301;
+
+      --success-bg: #D4EDDA; /* Lighter green for success message */
+      --success-border: #C3E6CB;
+      --success-text: #155724;
+      
+      --whatsapp-link-color: var(--tertiary-green);
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f9;
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
+      background: var(--light-gray-bg);
       margin: 0; padding: 0;
       display: flex; justify-content: center; align-items: center;
       min-height: 100vh;
       flex-direction: column;
+      color: var(--text-color-dark);
+      line-height: 1.6;
     }
     .container {
-      background: white;
-      padding: 30px;
-      max-width: 450px;
+      background: var(--white-bg);
+      padding: 35px;
+      max-width: 480px;
       width: 90%;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px var(--shadow-medium);
+      margin-bottom: 25px;
+      animation: fadeIn 0.8s ease-out;
     }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     h1 {
-      color: #007bff;
-      font-size: 1.5rem;
+      color: var(--primary-blue);
+      font-size: 1.8rem;
       text-align: center;
+      margin-bottom: 25px;
+      font-weight: 700;
     }
+    .info-box {
+      background-color: var(--info-bg);
+      border: 1px solid var(--info-border);
+      color: var(--info-text);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .info-box strong {
+      color: var(--info-strong);
+    }
+
     label {
-      font-weight: bold;
-      margin-top: 15px;
+      font-weight: 600;
+      margin-top: 20px;
       display: block;
+      color: var(--text-color-dark);
     }
-    input, select, button {
+    small {
+      color: var(--text-color-light);
+      font-size: 0.85rem;
+      margin-left: 5px;
+    }
+    input, select {
       width: 100%;
-      padding: 12px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-border-radius: 6px;
-      border: 1px solid #ccc;
+      padding: 14px;
+      margin-top: 8px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
       font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      box-sizing: border-box;
     }
+    input:focus, select:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Blue shadow */
+      outline: none;
+    }
+    
     button {
-      background-color: #007bff;
+      width: 100%;
+      padding: 15px;
+      background-color: var(--primary-blue);
       color: white;
       font-weight: bold;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Blue shadow */
     }
     button:hover {
-      background-color: #0056b3;
+      background-color: #0069D9; /* Darker blue on hover */
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
     }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+    }
+
     .success-message {
-      background: #e6ffed;
-      padding: 15px;
-      border: 1px solid #c3e6cb;
-      color: #155724;
-      border-radius: 6px;
+      background: var(--success-bg);
+      padding: 20px;
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+      border-radius: 8px;
       text-align: center;
+      font-size: 1.05rem;
+      animation: slideIn 0.6s ease-out;
     }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .whatsapp-link {
       display: inline-block;
-      margin-top: 10px;
-      color: #25D366;
+      margin-top: 15px;
+      color: var(--whatsapp-link-color);
       font-weight: bold;
       text-decoration: none;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
     }
+    .whatsapp-link:hover {
+      color: #218838; /* Slightly darker green on hover */
+      text-decoration: underline;
+    }
+
     .contact {
       text-align: center;
-      font-size: 0.95rem;
-      margin-top: 10px;
-      color: #444;
+      font-size: 0.9rem;
+      margin-top: 20px;
+      color: var(--text-color-light);
     }
     .contact a {
-      color: #007bff;
+      color: var(--primary-blue);
       text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    .contact a:hover {
+      color: #0056b3; /* Darker blue on hover */
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -82,16 +179,21 @@ border-radius: 6px;
 
 <div class="container">
   <h1>Big Quams Connect</h1>
+
+  <div class="info-box">
+    <strong>Important:</strong> The information you provide (Name, State, and WhatsApp Number) will be publicly visible to others who receive the generated VCF contact file. By submitting, you consent to this visibility.
+  </div>
+
   <form id="vcf-form">
     <label for="name">Preferred Name <small>(e.g. Debbie)</small></label>
-    <input type="text" id="name" name="name" required maxlength="30"/>
+    <input type="text" id="name" name="name" required maxlength="30" placeholder="Enter your preferred name"/>
 
     <label for="state">Your State</label>
     <select id="state" name="state" required>
       <option value="">-- Select State --</option>
       <option value="ABJ">Abuja</option>
       <option value="AB">Abia</option>
-<option value="AD">Adamawa</option>
+      <option value="AD">Adamawa</option>
       <option value="AK">Akwa Ibom</option>
       <option value="AN">Anambra</option>
       <option value="BA">Bauchi</option>
@@ -123,7 +225,7 @@ border-radius: 6px;
       <option value="PL">Plateau</option>
       <option value="RI">Rivers</option>
       <option value="SO">Sokoto</option>
-<option value="TA">Taraba</option>
+      <option value="TA">Taraba</option>
       <option value="YO">Yobe</option>
       <option value="ZA">Zamfara</option>
     </select>
@@ -131,19 +233,20 @@ border-radius: 6px;
     <label for="phone">WhatsApp Number</label>
     <input type="tel" id="phone" name="phone" placeholder="e.g. 9049871643 or +2349049871643" required/>
 
-    <button type="submit">Join Now</button>
+    <button type="submit">Join Now & Get VCF</button>
   </form>
 
   <div id="success-message" class="success-message" style="display: none;">
-    ✅ Successfully submitted!<br>
+    ✅ Awesome! Your details are submitted.<br>
+    Now, take the next step:<br>
     👉 <a href="https://chat.whatsapp.com/Hiu0e5OTvUIIk6Rq3ndsUA" class="whatsapp-link" target="_blank">Join the WhatsApp Group</a>
   </div>
 </div>
 
 <div class="contact">
-  📩 Need help? Contact us:<br>
+  📩 Need help? Connect with us:<br>
   <a href="https://wa.me/2349049871643" target="_blank">WhatsApp</a> | 
-  <a href="mailto:bigquamsmedia024@gmail.com">Email</a>
+  <a href="mailto:bigquamsmedia024@gmail.com">Email Us</a>
 </div>
 
 <script>
@@ -151,35 +254,49 @@ border-radius: 6px;
   const success = document.getElementById('success-message');
 
   function normalizePhone(phone) {
-    phone = phone.trim();
-    if (phone.startsWith('+234')) return phone;
-    if (phone.startsWith('0')) return '+234' + phone.slice(1);
-    if (phone.length === 10) return '+234' + phone;
-    return null;
+    phone = phone.replace(/\s/g, '').trim(); // Remove all spaces
+    // Check for common Nigerian phone number formats
+    // +234XXXXXXXXXX (14 chars)
+    if (phone.startsWith('+234') && phone.length === 14) return phone; 
+    // 080XXXXXXXX (11 chars, starts with 0) -> convert to +234XXXXXXXXXX
+    if (phone.startsWith('0') && phone.length === 11) return '+234' + phone.substring(1); 
+    // 80XXXXXXXX (10 chars, doesn't start with 0) -> convert to +234XXXXXXXXXX
+    if (phone.length === 10 && !phone.startsWith('0')) return '+234' + phone; 
+    return null; // Invalid format
   }
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
-const name = document.getElementById('name').value.trim();
+    const name = document.getElementById('name').value.trim();
     const state = document.getElementById('state').value;
     const rawPhone = document.getElementById('phone').value.trim();
     const phone = normalizePhone(rawPhone);
 
+    // Frontend validation
+    if (!name) {
+      alert('Please enter your preferred name.');
+      return;
+    }
+    if (!state) {
+      alert('Please select your state.');
+      return;
+    }
     if (!phone) {
-      alert('Please enter a valid Nigerian number.');
+      alert('Please enter a valid 10 or 11 digit Nigerian WhatsApp number, optionally starting with +234 or 0.');
       return;
     }
 
-    const fullName = `name -{state}`;
+    // Corrected interpolation: name - ${state}
+    const fullName = `${name} - ${state}`; 
 
     const data = {
       name: fullName,
-      state: state,
+      state: state, // Keeping state separate for database readability
       phone: phone,
       timestamp: new Date().toISOString()
     };
 
-    const apiURL = "https://sheetdb.io/api/v1/203f2csgdcsp0";
+    const apiURL = "https://sheetdb.io/api/v1/203f2csgdcsp0"; // Ensure this is your correct SheetDB URL
 
     try {
       const res = await fetch(apiURL, {
@@ -191,10 +308,13 @@ const name = document.getElementById('name').value.trim();
         form.style.display = 'none';
         success.style.display = 'block';
       } else {
-        alert("Something went wrong. Please try again.");
+        const errorData = await res.json();
+        console.error("SheetDB API Error:", errorData); // More specific error message
+        alert("Something went wrong with the submission. Please try again or contact support.");
       }
     } catch (err) {
-      alert("Network error. Please try again.");
+      console.error("Network or Fetch Error:", err);
+      alert("Network error. Please check your internet connection and try again.");
     }
   });
 </script>
