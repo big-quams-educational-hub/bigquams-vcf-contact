@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <title>Big Quams Connect - Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Font Awesome CDN for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* CSS Styles (unchanged from previous iterations) */
+    /* CSS Styles (mostly unchanged, with additions for icons/logo) */
     :root {
       --primary-blue: #007BFF; /* Main Blue for buttons, headings */
       --secondary-orange: #FF8C00; /* Accent Orange for highlights */
@@ -53,12 +55,24 @@
         text-align: center;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         margin-bottom: 30px;
+        display: flex; /* Added for logo alignment */
+        justify-content: center; /* Added for logo alignment */
+        align-items: center; /* Added for logo alignment */
     }
     .header h1 {
         margin: 0;
         font-size: 1.8rem;
         font-weight: 700;
+        margin-left: 10px; /* Space between logo and title */
     }
+    .header .logo { /* Style for a potential logo image */
+        height: 40px; /* Adjust as needed */
+        width: auto;
+        vertical-align: middle;
+        margin-right: 10px; /* Space between logo and text */
+        border-radius: 5px; /* Slightly rounded corners for a logo */
+    }
+
 
     .panel {
       max-width: 900px; /* Wider panel for table data */
@@ -113,11 +127,10 @@
     }
 
     .download-button {
-      /* Remove 'display: block' and 'margin: auto' for flexbox handling */
-      width: fit-content; /* Adjust width to content */
+      width: fit-content; 
       min-width: 200px;
       padding: 15px 30px;
-      background-color: var(--tertiary-green); /* Green brand color */
+      background-color: var(--tertiary-green); 
       color: white;
       border: none;
       border-radius: 8px;
@@ -125,10 +138,15 @@
       cursor: pointer;
       font-size: 1.1rem;
       transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2); /* Green shadow */
-      text-decoration: none; /* For if it's an <a> tag */
+      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2); 
+      text-decoration: none; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
     }
-    /* Specific styling for the 'Download All' button to make it primary blue */
+    .download-button i { 
+        margin-right: 8px; 
+    }
     .download-button.primary {
         background-color: var(--primary-blue);
         box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
@@ -143,7 +161,7 @@
     }
 
     .download-button:hover {
-      background-color: #218838; /* Darker green on hover */
+      background-color: #218838; 
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
     }
@@ -176,6 +194,8 @@
 </head>
 <body>
   <div class="header">
+      <!-- Big Quams Connect Logo - Now using your provided URL -->
+      <img src="https://ik.imagekit.io/bigquamsmedia/GeneratedImageOctober042025-8_05P.jpeg?updatedAt=1759625291715" alt="Big Quams Logo" class="logo"> 
       <h1>Big Quams Connect Admin</h1>
   </div>
 
@@ -184,8 +204,8 @@
     <div id="data-table" class="data-load-message">Loading contacts...</div>
     
     <div class="button-group">
-        <button class="download-button" onclick="downloadNewMembersVCF()">Download New Members (since last download)</button>
-        <button class="download-button primary" onclick="downloadAllMembersVCF()">Download All Members VCF</button>
+        <button class="download-button" onclick="downloadNewMembersVCF()"><i class="fas fa-arrow-down"></i> Download New Members (since last download)</button>
+        <button class="download-button primary" onclick="downloadAllMembersVCF()"><i class="fas fa-download"></i> Download All Members VCF</button>
     </div>
     
   </div>
@@ -256,7 +276,6 @@
             const phone = entry.phone || 'N/A';
             const memberType = entry.membertype || 'N/A';
             const joinDate = entry.joindate || 'N/A';
-            // Display the tracking date from the designated column
             const lastDownload = entry[LAST_DOWNLOAD_MARKER_COLUMN] || 'N/A'; 
 
             tableHtml += `<tr>
@@ -286,42 +305,33 @@
             }
             const data = await response.json();
 
-            // 1. Get the last download date from the tracking row
-            // We assume the tracking date is in the 'LAST_DOWNLOAD_MARKER_COLUMN' of the row identified by TRACKING_ROW_ID.
-            // Since SheetDB's API returns data as an array, data[0] corresponds to the row with id=2
-            // data[TRACKING_ROW_ID - 2] would be the general way to access if TRACKING_ROW_ID could vary.
-            // For TRACKING_ROW_ID = 2, it's simply data[0].
-            const trackingEntry = data.find(row => row.id == TRACKING_ROW_ID) || data[0]; // More robust to find by ID
+            const trackingEntry = data.find(row => row.id == TRACKING_ROW_ID) || data[0]; 
             let lastDownloadTimestamp = null;
 
             if (trackingEntry && trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]) {
                 lastDownloadTimestamp = new Date(trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]);
-                // Validate if it's a real date
                 if (isNaN(lastDownloadTimestamp.getTime())) {
-                    lastDownloadTimestamp = null; // Invalid date, treat as if no previous download
+                    lastDownloadTimestamp = null; 
                 }
             }
             
-            // If no valid date found, set a very old date to get all existing members on the first run
             const filterCutoffDate = lastDownloadTimestamp || new Date('2000-01-01T00:00:00Z'); 
 
             let newMembersVCFContent = "";
             let newMembersCount = 0;
-            const currentDownloadTimestamp = new Date().toISOString(); // To update the marker with current time
+            const currentDownloadTimestamp = new Date().toISOString(); 
 
             data.forEach((entry) => {
                 const name = entry.name || 'Unknown';
                 const phone = entry.phone || '';
                 const joinDateStr = entry.joindate;
 
-                // Ensure we don't process the tracking row itself as a 'member'
                 if (entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN]) {
-                    return; // Skip the tracking row if it's mixed with member data
+                    return; 
                 }
 
                 if (phone && joinDateStr) {
                     const memberJoinDate = new Date(joinDateStr);
-                    // Include if joindate is valid and strictly AFTER the last admin download date
                     if (!isNaN(memberJoinDate.getTime()) && memberJoinDate > filterCutoffDate) {
                         const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
                         newMembersVCFContent += vcardEntry;
@@ -334,7 +344,6 @@
                 triggerDownload(newMembersVCFContent, `campusconnect_new_members_since_${new Date(filterCutoffDate).toISOString().slice(0,10)}.vcf`);
                 alert(`${newMembersCount} new members downloaded since last admin download. Updating tracking date...`);
 
-                // 2. Update the last download date in SheetDB to the current time
                 const updateResponse = await fetch(`${API_URL}/id/${TRACKING_ROW_ID}`, {
                     method: 'PATCH',
                     headers: {
@@ -352,7 +361,7 @@
                 }
                 await updateResponse.json();
                 console.log("Admin last download tracking date updated successfully.");
-                fetchData(); // Refresh table to show updated tracking date
+                fetchData(); 
                 
             } else {
                 alert(`No new members found since last admin download (${new Date(filterCutoffDate).toLocaleString()}).`);
@@ -380,12 +389,11 @@
                 const name = entry.name || 'Unknown';
                 const phone = entry.phone || '';
 
-                // Ensure we don't process the tracking row itself as a 'member' for All Members file
                 if (entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN]) {
-                    return; // Skip the tracking row
+                    return; 
                 }
 
-                if (phone) { // Only add if phone number exists
+                if (phone) { 
                     const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
                     allMembersVCFContent += vcardEntry;
                 }
@@ -404,7 +412,7 @@
         }
     }
 
-    fetchData(); // Call fetchData on page load
+    fetchData(); 
   </script>
 
 </body>
