@@ -708,30 +708,26 @@
                 .then(() => {
                     copyStatus.textContent = `${whatsappNumbers.length} WhatsApp numbers copied to clipboard!`;
                     copyStatus.style.display = 'block';
-                    copyStatus.style.backgroundColor = var(--success-bg);
-                    copyStatus.style.color = var(--success-text);
+                    copyStatus.style.backgroundColor = 'var(--success-bg)'; // Use var() for CSS variables
+                    copyStatus.style.color = 'var(--success-text)';     // Use var() for CSS variables
                     setTimeout(() => copyStatus.style.display = 'none', 3000);
                 })
                 .catch(err => {
                     console.error('Failed to copy WhatsApp numbers: ', err);
                     copyStatus.textContent = 'Failed to copy numbers. Please try again.';
                     copyStatus.style.display = 'block';
-                    copyStatus.style.backgroundColor = var(--info-bg);
-                    copyStatus.style.color = var(--info-text);
+                    copyStatus.style.backgroundColor = 'var(--info-bg)'; // Use var() for CSS variables
+                    copyStatus.style.color = 'var(--info-text)';       // Use var() for CSS variables
                     setTimeout(() => copyStatus.style.display = 'none', 3000);
                 });
         } else {
             copyStatus.textContent = 'No valid WhatsApp numbers to copy.';
             copyStatus.style.display = 'block';
-            copyStatus.style.backgroundColor = var(--info-bg);
-            copyStatus.style.color = var(--info-text);
+            copyStatus.style.backgroundColor = 'var(--info-bg)'; // Use var() for CSS variables
+            copyStatus.style.color = 'var(--info-text)';       // Use var() for CSS variables
             setTimeout(() => copyStatus.style.display = 'none', 3000);
         }
     }
 
     // Initial data fetch and display when the page loads
     document.addEventListener("DOMContentLoaded", fetchAllDataAndDisplay);
-
-  </script>
-</body>
-</html>
