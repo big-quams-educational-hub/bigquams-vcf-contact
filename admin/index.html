@@ -102,11 +102,17 @@
     table tr:nth-child(even) {
         background-color: #fcfdfe; /* Subtle stripe for readability */
     }
+    
+    .button-group {
+        display: flex;
+        flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+        justify-content: center;
+        gap: 20px; /* Space between buttons */
+        margin-top: 30px;
+    }
 
-
-    .download-button { /* Renamed class for consistency */
-      display: block;
-      margin: 30px auto 0; /* Centered, with space above */
+    .download-button {
+      /* Remove 'display: block' and 'margin: auto' for flexbox handling */
       width: fit-content; /* Adjust width to content */
       min-width: 200px;
       padding: 15px 30px;
@@ -121,6 +127,20 @@
       box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2); /* Green shadow */
       text-decoration: none; /* For if it's an <a> tag */
     }
+    /* Specific styling for the 'Download All' button to make it primary blue */
+    .download-button.primary {
+        background-color: var(--primary-blue);
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+    }
+    .download-button.primary:hover {
+        background-color: #0056b3;
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+    }
+    .download-button.primary:active {
+        background-color: #004085;
+        box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+    }
+
     .download-button:hover {
       background-color: #218838; /* Darker green on hover */
       transform: translateY(-2px);
@@ -161,7 +181,12 @@
   <div class="panel" id="admin-panel">
     <h2>VCF Contact List</h2>
     <div id="data-table" class="data-load-message">Loading contacts...</div>
-    <button class="download-button" onclick="downloadVCF()">Download All VCF Files</button>
+    
+    <div class="button-group">
+        <button class="download-button" onclick="downloadNewMembersVCF()">Download New Members VCF</button>
+        <button class="download-button primary" onclick="downloadAllMembersVCF()">Download All Members VCF</button>
+    </div>
+    
   </div>
 
   <div class="footer-love">
@@ -171,12 +196,35 @@
   <script>
     const API_URL = "https://sheetdb.io/api/v1/203f2csgdcsp0"; // Ensure this is your correct SheetDB URL
 
+    // Utility function to create and trigger VCF download
+    const triggerDownload = (content, filename) => {
+        if (content) {
+            const blob = new Blob([content], { type: "text/vcard;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+            console.log(`Downloaded: ${filename}`);
+        } else {
+            console.log(`No content for: ${filename}`);
+        }
+    };
+
+    // --- FETCH AND DISPLAY DATA ---
     function fetchData() {
       fetch(API_URL)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
         .then(data => {
           const dataTableDiv = document.getElementById("data-table");
-          if (!data || data.length === 0) { // Check for empty array
+          if (!data || data.length === 0) {
             dataTableDiv.innerHTML = "<p class='data-load-message'>No contacts found.</p>";
             return;
           }
@@ -187,98 +235,129 @@
                                     <th>Name</th>
                                     <th>State</th>
                                     <th>Phone</th>
-                                    <th>Member Type</th> <!-- Added Member Type column header -->
+                                    <th>Member Type</th>
                                 </tr>
                             </thead>
                             <tbody>`;
           data.forEach(entry => {
-            // Ensure data fields exist to prevent errors
             const name = entry.name || 'N/A';
             const state = entry.state || 'N/A';
             const phone = entry.phone || 'N/A';
-            const memberType = entry.membertype || 'N/A'; // Get membertype
+            const memberType = entry.membertype || 'New'; // Default to 'New' if not set
 
-            // Correctly interpolate variables using template literals
             tableHtml += `<tr>
                             <td>${name}</td>
                             <td>${state}</td>
                             <td>${phone}</td>
-                            <td>${memberType}</td> <!-- Display membertype -->
+                            <td>${memberType}</td>
                           </tr>`;
           });
           tableHtml += `</tbody></table>`;
           dataTableDiv.innerHTML = tableHtml;
         })
-        .catch(error => { // Catch block for fetch errors
+        .catch(error => {
           console.error("Error fetching data:", error);
           document.getElementById("data-table").innerHTML = "<p class='data-load-message'>Failed to load data. Please try again later.</p>";
         });
     }
 
-    function downloadVCF() {
-      fetch(API_URL)
-        .then(res => res.json())
-        .then(data => {
-          let oldMembersVCFContent = "";
-          let newMembersVCFContent = "";
-
-          data.forEach(entry => {
-            const name = entry.name || 'Unknown';
-            const phone = entry.phone || '';
-            // Make sure this matches your actual column name exactly: 'membertype'
-            const memberType = entry.membertype ? entry.membertype.toLowerCase() : ''; 
-
-            if (phone) { // Only add if phone number exists
-              const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
-              
-              if (memberType === 'old') {
-                oldMembersVCFContent += vcardEntry;
-              } else if (memberType === 'new') {
-                newMembersVCFContent += vcardEntry;
-              }
-              // Contacts with no 'membertype' or an unrecognized one will be skipped for these specific files
+    // --- DOWNLOAD NEW MEMBERS VCF AND UPDATE STATUS ---
+    async function downloadNewMembersVCF() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-          });
+            const data = await response.json();
 
-          // Function to create and trigger download
-          const triggerDownload = (content, filename) => {
-            if (content) {
-              const blob = new Blob([content], { type: "text/vcard;charset=utf-8" });
-              const link = document.createElement("a");
-              link.href = URL.createObjectURL(blob);
-              link.download = filename;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              URL.revokeObjectURL(link.href);
-              console.log(`Downloaded: ${filename}`);
+            let newMembersVCFContent = "";
+            const updates = []; // To store updates for SheetDB
+
+            data.forEach((entry, index) => {
+                const name = entry.name || 'Unknown';
+                const phone = entry.phone || '';
+                const memberType = (entry.membertype || 'New').toLowerCase(); 
+
+                // If 'membertype' is 'New' (or not set), include in new VCF and prepare for update
+                if (phone && (memberType === 'new' || memberType === 'n/a')) {
+                    const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
+                    newMembersVCFContent += vcardEntry;
+                    updates.push({
+                        "id": index + 2, // SheetDB often uses row numbers starting from 2 for first data row
+                        "membertype": "Old"
+                    });
+                }
+            });
+
+            if (newMembersVCFContent) {
+                triggerDownload(newMembersVCFContent, "campusconnect_new_members.vcf");
+                alert("New members VCF downloaded. Updating their status to 'Old'...");
+
+                // Batch update membertype for downloaded contacts
+                if (updates.length > 0) {
+                    try {
+                        const updateResponse = await fetch(`${API_URL}/id`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ data: updates })
+                        });
+
+                        if (!updateResponse.ok) {
+                            throw new Error(`SheetDB update failed! status: ${updateResponse.status}`);
+                        }
+                        await updateResponse.json();
+                        console.log("Member types updated successfully.");
+                        fetchData(); // Refresh table to show updated status
+                    } catch (updateError) {
+                        console.error("Error updating member types:", updateError);
+                        alert("VCF downloaded, but failed to update member types. Please check console.");
+                    }
+                }
             } else {
-              console.log(`No content for: ${filename}`);
+                alert("No new members found to download.");
             }
-          };
 
-          // Trigger downloads for old and new members
-          let downloadsInitiated = 0;
-          if (oldMembersVCFContent) {
-            triggerDownload(oldMembersVCFContent, "bigquams_old_members.vcf");
-            downloadsInitiated++;
-          }
-          if (newMembersVCFContent) {
-            triggerDownload(newMembersVCFContent, "bigquams_new_members.vcf");
-            downloadsInitiated++;
-          }
-          
-          if (downloadsInitiated === 0) {
-            alert("No contacts classified as 'Old' or 'New' with phone numbers available to download.");
-          } else {
-            alert(`Initiated download for ${downloadsInitiated} VCF file(s). Check your downloads folder.`);
-          }
+        } catch (error) {
+            console.error("Error processing new members VCF:", error);
+            alert("Failed to download new members VCF. Please try again.");
+        }
+    }
 
-        })
-        .catch(error => {
-          console.error("Error downloading VCF:", error);
-          alert("Failed to download VCF files. Please try again.");
-        });
+
+    // --- DOWNLOAD ALL MEMBERS VCF ---
+    async function downloadAllMembersVCF() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            let allMembersVCFContent = "";
+
+            data.forEach(entry => {
+                const name = entry.name || 'Unknown';
+                const phone = entry.phone || '';
+
+                if (phone) { // Only add if phone number exists
+                    const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
+                    allMembersVCFContent += vcardEntry;
+                }
+            });
+
+            if (allMembersVCFContent) {
+                triggerDownload(allMembersVCFContent, "campusconnect_all_members.vcf");
+                alert("All members VCF downloaded. Check your downloads folder.");
+            } else {
+                alert("No members found to download.");
+            }
+
+        } catch (error) {
+            console.error("Error downloading all members VCF:", error);
+            alert("Failed to download all members VCF. Please try again.");
+        }
     }
 
     fetchData(); // Call fetchData on page load
