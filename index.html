@@ -4,6 +4,26 @@
   <meta charset="UTF-8">
   <title>CampusConnect NG - Join Us</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Font Awesome CDN for WhatsApp icon (needed for mobile) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <!-- ****************************************************** -->
+  <!--           OPEN GRAPH META TAGS FOR SOCIAL PREVIEW      -->
+  <!-- ****************************************************** -->
+  <meta property="og:title" content="Join CampusConnect NG - Connect with Students Across Nigeria!" />
+  <meta property="og:description" content="Sign up to expand your campus network, connect with peers, and access exclusive resources. Get your VCF file and join our WhatsApp group!" />
+  <meta property="og:image" content="https://ik.imagekit.io/bigquamsmedia/GeneratedImageOctober042025-8_05P.jpeg?updatedAt=1759625291715" /> 
+  <meta property="og:url" content="https://www.yourwebsite.com/join.html" /> <!-- IMPORTANT: Replace with your actual page URL -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CampusConnect NG" />
+  
+  <!-- Optional: Twitter Card specific tags (good for Twitter) -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Join CampusConnect NG - Connect with Students Across Nigeria!">
+  <meta name="twitter:description" content="Sign up to expand your campus network, connect with peers, and access exclusive resources. Get your VCF file and join our WhatsApp group!">
+  <meta name="twitter:image" content="https://ik.imagekit.io/bigquamsmedia/GeneratedImageOctober042025-8_05P.jpeg?updatedAt=1759625291715">
+
+
   <style>
     :root {
       --primary-blue: #007BFF;
@@ -49,45 +69,45 @@
         background-position: center;
         background-repeat: no-repeat;
         margin-bottom: 30px;
-        position: relative; /* Needed for absolute positioning of header elements */
-        display: flex; /* To center content horizontally */
-        justify-content: center; /* Center content horizontally */
-        align-items: center; /* Center content vertically */
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        /* Your cover image URL: */
         background-image: url('https://ik.imagekit.io/bigquamsmedia/CampusConnect-NG-reduced.jpeg?updatedAt=1759624459929'); 
     }
 
     .header {
-        position: absolute; /* Position over the cover image */
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        background-color: rgba(0, 123, 255, 0.7); /* Semi-transparent blue */
+        background-color: rgba(0, 123, 255, 0.7);
         color: var(--white-bg);
         padding: 15px 0;
         text-align: center;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        display: flex; /* Use flexbox to align logo and title */
+        display: flex;
         align-items: center;
-        justify-content: center; /* Initially center both */
-        gap: 15px; /* Space between logo and title */
+        justify-content: center;
+        gap: 15px;
+        box-sizing: border-box;
     }
     .header h1 {
         margin: 0;
         font-size: 1.8rem;
         font-weight: 700;
-        z-index: 2; /* Ensure text is above semi-transparent background */
+        z-index: 2;
     }
 
     /* Logo Styling */
     .header .logo {
-        height: 40px; /* Adjust logo height as needed */
-        width: auto; /* Maintain aspect ratio */
-        border-radius: 50%; /* Make it round if preferred */
-        object-fit: cover; /* Ensure image covers the area */
-        box-shadow: 0 0 0 3px rgba(255,255,255,0.5); /* White border around logo */
-        z-index: 2; /* Ensure logo is above semi-transparent background */
+        height: 40px;
+        width: auto;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 0 0 3px rgba(255,255,255,0.5);
+        z-index: 2;
     }
 
     .container {
@@ -129,7 +149,7 @@
 
     input[type="text"],
     input[type="tel"],
-    select { /* Now includes select for styling */
+    select {
       width: 100%;
       padding: 12px;
       border: 1px solid var(--border-color);
@@ -140,7 +160,7 @@
     }
     input[type="text"]:focus,
     input[type="tel"]:focus,
-    select:focus { /* Added select for focus style */
+    select:focus {
       border-color: var(--primary-blue);
       box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
       outline: none;
@@ -213,7 +233,7 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-        margin-top: 15px; /* Slightly less margin than main submit button */
+        margin-top: 15px;
     }
     .whatsapp-button:hover {
         background-color: var(--whatsapp-dark-color);
@@ -233,13 +253,13 @@
       background-color: var(--success-bg);
       color: var(--success-text);
       border: 1px solid var(--success-border);
-      padding: 25px; /* More padding for a success page look */
+      padding: 25px;
       border-radius: 8px;
       text-align: center;
       margin-top: 20px;
       font-size: 1rem;
       font-weight: 500;
-      display: none; /* Hidden by default */
+      display: none;
     }
     .success-message p {
         margin-bottom: 15px;
@@ -247,7 +267,7 @@
         font-weight: bold;
     }
     .success-message .whatsapp-button {
-        margin-top: 20px; /* Adjust margin within success message */
+        margin-top: 20px;
     }
 
     .footer-love {
@@ -262,6 +282,114 @@
         color: var(--primary-blue);
         text-decoration: none;
         font-weight: 500;
+    }
+
+    /* ****************************************************** */
+    /*           RESPONSIVE / MOBILE OPTIMIZATIONS            */
+    /* ****************************************************** */
+
+    @media (max-width: 768px) {
+        .cover-picture-container {
+            height: 150px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            padding: 10px 15px;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            text-align: left;
+        }
+        .header .logo {
+            height: 35px;
+            box-shadow: none;
+        }
+
+        .container {
+            width: 95%;
+            margin: 20px auto;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        select,
+        .phone-prefix {
+            padding: 10px;
+            font-size: 0.95rem;
+        }
+        .phone-input-group input[type="tel"] {
+            padding: 10px;
+        }
+
+
+        button[type="submit"], .whatsapp-button {
+            width: 100%;
+            min-width: unset;
+            padding: 12px 20px;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+
+        .whatsapp-button {
+            gap: 8px;
+        }
+        .whatsapp-icon {
+            font-size: 1.1rem;
+        }
+
+        .success-message {
+            padding: 20px;
+        }
+        .success-message p {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+        .success-message .whatsapp-button {
+            margin-top: 15px;
+        }
+
+        .footer-love {
+            margin-top: 20px;
+            padding-bottom: 10px;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header {
+            flex-direction: column;
+            padding: 10px 0;
+            gap: 5px;
+            height: auto;
+            min-height: 80px;
+        }
+        .header .logo {
+            margin-bottom: 5px;
+        }
+        .header h1 {
+            font-size: 1.3rem;
+            text-align: center;
+        }
     }
   </style>
 </head>
@@ -345,35 +473,22 @@
 
     // Function to normalize phone number
     function normalizePhoneNumber(inputNumber) {
-        // 1. Remove all non-digit characters
-        let cleanedNumber = inputNumber.replace(/\D/g, '');
+        let cleanedNumber = inputNumber.replace(/\D/g, ''); // Remove all non-digit characters
 
-        // 2. Handle common Nigerian prefixes
+        // Handle common Nigerian prefixes
         if (cleanedNumber.startsWith('0')) {
-            // Remove leading '0'
-            cleanedNumber = cleanedNumber.substring(1);
+            cleanedNumber = cleanedNumber.substring(1); // Remove leading '0'
         } else if (cleanedNumber.startsWith('234')) {
-            // If already starts with 234, remove it to re-add later for consistency
-            cleanedNumber = cleanedNumber.substring(3);
+            cleanedNumber = cleanedNumber.substring(3); // Remove leading '234'
         } else if (cleanedNumber.startsWith('+234')) {
-            // If already starts with +234, remove it to re-add later for consistency
-            cleanedNumber = cleanedNumber.substring(4);
+            cleanedNumber = cleanedNumber.substring(4); // Remove leading '+234'
         }
-        // At this point, cleanedNumber should be a 10-digit number like '8012345678'
 
-        // 3. Validate length (expecting 10 digits after cleaning)
         if (cleanedNumber.length === 10) {
             return `+234${cleanedNumber}`;
         } else {
-            // If it's not a standard 10-digit number, return null or throw an error
-            // For now, we'll return the original cleaned number or a simple +234 prefix
-            // It's crucial to decide how strict you want this to be.
-            // For sending to backend, a normalized +234xxxxxxxxxx is best.
-            // If it's not 10 digits, it's likely invalid for Nigeria after normalization.
             console.warn("Phone number length mismatch after normalization. Original:", inputNumber, "Cleaned:", cleanedNumber);
-            // Optionally, you could make this an error and prevent submission.
-            // For now, we'll try to prepend +234, but it might still be invalid.
-            return `+234${cleanedNumber}`; 
+            return null; // Indicate invalid number after normalization
         }
     }
 
@@ -387,19 +502,19 @@
         data[key] = value;
       });
 
-      // Normalize the phone number using the new function
       const rawPhoneNumber = data.phone;
       const normalizedPhoneNumber = normalizePhoneNumber(rawPhoneNumber);
       
-      // Basic validation for normalization
-      if (normalizedPhoneNumber && normalizedPhoneNumber.length === 14 && normalizedPhoneNumber.startsWith('+234')) {
+      if (normalizedPhoneNumber) { // Check if normalization was successful
           data.phone = normalizedPhoneNumber;
       } else {
-          alert('Please enter a valid Nigerian phone number (e.g., 08012345678 or 8012345678).');
-          return; // Stop form submission
+          alert('Please enter a valid 10-digit Nigerian phone number (e.g., 08012345678 or 8012345678).');
+          return; // Stop form submission if phone number is invalid
       }
+      
+      // Add current timestamp for joindate
+      data.joindate = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-      // Log data for debugging (optional)
       console.log("Submitting data:", data);
 
       fetch(FORM_API_URL, {
