@@ -521,6 +521,61 @@
         whatsappTableDiv.innerHTML = tableHtml;
     }
 
+    /**
+     * Generates VCF content from an array of contact objects,
+     * skipping entries where all specified VCF fields are 'N/A'.
+     * @param {Array<Object>} contacts - An array of contact objects.
+     * @returns {string} The combined VCF content.
+     */
+    function generateVCFContent(contacts) {
+        let vcfContent = "";
+        contacts.forEach(entry => {
+            const name = entry.name || '';
+            const phone = entry.phone || '';
+            const state = entry.state || '';
+            const memberType = entry.membertype || '';
+            const joinDate = entry.joindate || '';
+
+            // Check if all relevant fields for VCF are 'N/A' or empty
+            const allNA = [name, phone, state, memberType, joinDate].every(
+                field => field === 'N/A' || field.trim() === ''
+            );
+
+            if (allNA) {
+                // Skip this entry as it contains only 'N/A' or empty values for VCF fields
+                return; 
+            }
+
+            // Format name to be suitable for VCF (e.g., capitalize first letter of each word)
+            const formattedName = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+            
+            // Basic VCF structure. You might need to adjust this based on specific VCF requirements.
+            vcfContent += `BEGIN:VCARD\n`;
+            vcfContent += `VERSION:3.0\n`;
+            if (formattedName && formattedName !== 'N/A') {
+                vcfContent += `FN:${formattedName}\n`;
+                vcfContent += `N:${formattedName};;;\n`; // Last;First;Middle;Prefix;Suffix
+            } else {
+                vcfContent += `FN:Unknown Name\n`;
+                vcfContent += `N:Unknown Name;;;\n`;
+            }
+            if (phone && phone !== 'N/A') {
+                vcfContent += `TEL;TYPE=CELL:${phone}\n`;
+            }
+            if (state && state !== 'N/A') {
+                vcfContent += `X-STATE:${state}\n`; // Custom field for state
+            }
+            if (memberType && memberType !== 'N/A') {
+                vcfContent += `ORG:${memberType}\n`; // Use ORG for member type
+            }
+            if (joinDate && joinDate !== 'N/A') {
+                vcfContent += `NOTE:Joined on ${joinDate}\n`;
+            }
+            vcfContent += `END:VCARD\n`;
+        });
+        return vcfContent;
+    }
+
 
     // --- DOWNLOAD NEW MEMBERS (SINCE LAST ADMIN DOWNLOAD) VCF ---
     async function downloadNewMembersVCF() {
@@ -544,61 +599,58 @@
             
             const filterCutoffDate = lastDownloadTimestamp || new Date('2000-01-01T00:00:00Z'); 
 
-            let newMembersVCFContent = "";
-            let newMembersCount = 0;
-            const currentDownloadTimestamp = new Date().toISOString(); 
+            const newMembers = data.filter(entry => {
+                // Exclude the tracking row itself from new members
+                if (entry.id == TRACKING_ROW_ID) return false;
 
-            // Filter out the tracking row from the contact processing
-            const actualContacts = data.filter(entry => 
-                !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
-            );
-
-            actualContacts.forEach((entry) => {
-                const name = entry.name || 'Unknown';
-                const phone = entry.phone || '';
                 const joinDateStr = entry.joindate;
-
-                if (phone && joinDateStr) {
-                    const memberJoinDate = new Date(joinDateStr);
-                    if (!isNaN(memberJoinDate.getTime()) && memberJoinDate > filterCutoffDate) {
-                        const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
-                        newMembersVCFContent += vcardEntry;
-                        newMembersCount++;
-                    }
+                if (!joinDateStr || joinDateStr === 'N/A') {
+                    // If join date is missing, treat it as an old member, or decide on a different default.
+                    // For now, let's skip if join date is not available.
+                    return false;
                 }
+
+                const entryJoinDate = new Date(joinDateStr);
+                // Ensure date parsing is successful and compare
+                return !isNaN(entryJoinDate.getTime()) && entryJoinDate > filterCutoffDate;
+            });
+            
+            let newMembersVCFContent = generateVCFContent(newMembers);
+            
+            if (newMembersVCFContent.trim().length > 0) { // Check if there's actual VCF content
+                triggerDownload(newMembersVCFContent, "new_members.vcf");
+            } else {
+                alert("No new members found or all new members have N/A for VCF fields.");
+                console.log("No new members or VCF content to download.");
+                return; // Exit if no content
+            }
+
+            // --- Update the admin_last_download column after successful download ---
+            const currentDownloadTimestamp = new Date().toISOString(); // ISO string format
+            const updatePayload = {
+                "id": TRACKING_ROW_ID, // Use the row ID for tracking
+                [LAST_DOWNLOAD_MARKER_COLUMN]: currentDownloadTimestamp
+            };
+
+            const updateResponse = await fetch(`${API_URL}/id/${TRACKING_ROW_ID}`, {
+                method: 'PATCH', // Use PATCH for updating specific fields
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatePayload)
             });
 
-            if (newMembersVCFContent) {
-                triggerDownload(newMembersVCFContent, `campusconnect_new_members_since_${new Date(filterCutoffDate).toISOString().slice(0,10)}.vcf`);
-                alert(`${newMembersCount} new members downloaded since last admin download. Updating tracking date...`);
-
-                // Update the tracking date in SheetDB
-                const updateResponse = await fetch(`${API_URL}/id/${TRACKING_ROW_ID}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        data: {
-                            [LAST_DOWNLOAD_MARKER_COLUMN]: currentDownloadTimestamp
-                        }
-                    })
-                });
-
-                if (!updateResponse.ok) {
-                    throw new Error(`SheetDB tracking date update failed! status: ${updateResponse.status}`);
-                }
-                await updateResponse.json();
-                console.log("Admin last download tracking date updated successfully.");
-                fetchAllDataAndDisplay(); // Refresh data and tables
-                
+            if (!updateResponse.ok) {
+                console.error("Failed to update admin_last_download marker:", updateResponse.statusText);
             } else {
-                alert(`No new members found since last admin download (${new Date(filterCutoffDate).toLocaleString()}).`);
+                console.log("admin_last_download marker updated successfully.");
+                // Re-fetch and display data to reflect the updated marker
+                await fetchAllDataAndDisplay(); 
             }
 
         } catch (error) {
-            console.error("Error processing new members VCF:", error);
-            alert("Failed to download new members VCF. Please try again. Check console for details.");
+            console.error("Error downloading new members VCF:", error);
+            alert("Failed to download new members VCF. See console for details.");
         }
     }
 
@@ -612,97 +664,74 @@
             }
             const data = await response.json();
 
-            let allMembersVCFContent = "";
-
             // Filter out the tracking row
             const actualContacts = data.filter(entry => 
                 !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
             );
 
-            actualContacts.forEach(entry => {
-                const name = entry.name || 'Unknown';
-                const phone = entry.phone || '';
+            let allMembersVCFContent = generateVCFContent(actualContacts);
 
-                if (phone) { 
-                    const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
-                    allMembersVCFContent += vcardEntry;
-                }
-            });
-
-            if (allMembersVCFContent) {
-                triggerDownload(allMembersVCFContent, `campusconnect_all_members_${new Date().toISOString().slice(0,10)}.vcf`);
-                alert("All members VCF downloaded. Check your downloads folder.");
+            if (allMembersVCFContent.trim().length > 0) { // Check if there's actual VCF content
+                triggerDownload(allMembersVCFContent, "all_members.vcf");
             } else {
-                alert("No members found to download.");
+                alert("No members found or all members have N/A for VCF fields.");
+                console.log("No members or VCF content to download.");
             }
 
         } catch (error) {
             console.error("Error downloading all members VCF:", error);
-            alert("Failed to download all members VCF. Please try again.");
+            alert("Failed to download all members VCF. See console for details.");
         }
     }
 
-    // --- Copy All WhatsApp Numbers Functionality ---
-    async function copyAllWhatsAppNumbers() {
-        const copyStatusDiv = document.getElementById("copy-status");
-        copyStatusDiv.style.display = 'none'; // Hide previous status
+    // --- COPY ALL WHATSAPP NUMBERS ---
+    function copyAllWhatsAppNumbers() {
+        const whatsappTableDiv = document.getElementById("whatsapp-contacts-table");
+        const rows = whatsappTableDiv.querySelectorAll('table tbody tr');
+        let whatsappNumbers = [];
 
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-
-            let contactList = "";
-            let count = 0;
-
-            // Filter out the tracking row
-            const actualContacts = data.filter(entry => 
-                !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
-            );
-
-            actualContacts.forEach((entry) => {
-                const phone = entry.phone;
-                if (phone) {
-                    count++;
-                    contactList += `${count}. ${phone}\n`;
+        rows.forEach(row => {
+            const phoneNumberCell = row.children[2]; // Assuming phone number is the 3rd column
+            if (phoneNumberCell) {
+                const phoneNumber = phoneNumberCell.textContent.trim();
+                // Only add numbers that are not 'N/A' and are valid phone number formats (simple check)
+                if (phoneNumber !== 'N/A' && phoneNumber.match(/^\+?\d[\d\s-]*$/)) {
+                    whatsappNumbers.push(phoneNumber);
                 }
-            });
-
-            if (contactList) {
-                await navigator.clipboard.writeText(contactList);
-                copyStatusDiv.textContent = `Successfully copied ${count} WhatsApp numbers to clipboard!`;
-                copyStatusDiv.style.display = 'block';
-                console.log("All WhatsApp numbers copied:", contactList);
-            } else {
-                copyStatusDiv.textContent = "No WhatsApp numbers found to copy.";
-                copyStatusDiv.style.display = 'block';
             }
+        });
 
-            // Hide the status message after a few seconds
-            setTimeout(() => {
-                copyStatusDiv.style.display = 'none';
-            }, 5000); // 5 seconds
-
-        } catch (error) {
-            console.error("Error copying WhatsApp numbers:", error);
-            copyStatusDiv.textContent = "Failed to copy numbers. Please ensure you're on HTTPS and try again.";
-            copyStatusDiv.style.display = 'block';
-            setTimeout(() => {
-                copyStatusDiv.style.display = 'none';
-            }, 5000);
+        const copyStatus = document.getElementById("copy-status");
+        if (whatsappNumbers.length > 0) {
+            const numbersToCopy = whatsappNumbers.join('\n');
+            navigator.clipboard.writeText(numbersToCopy)
+                .then(() => {
+                    copyStatus.textContent = `${whatsappNumbers.length} WhatsApp numbers copied to clipboard!`;
+                    copyStatus.style.display = 'block';
+                    copyStatus.style.backgroundColor = var(--success-bg);
+                    copyStatus.style.color = var(--success-text);
+                    setTimeout(() => copyStatus.style.display = 'none', 3000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy WhatsApp numbers: ', err);
+                    copyStatus.textContent = 'Failed to copy numbers. Please try again.';
+                    copyStatus.style.display = 'block';
+                    copyStatus.style.backgroundColor = var(--info-bg);
+                    copyStatus.style.color = var(--info-text);
+                    setTimeout(() => copyStatus.style.display = 'none', 3000);
+                });
+        } else {
+            copyStatus.textContent = 'No valid WhatsApp numbers to copy.';
+            copyStatus.style.display = 'block';
+            copyStatus.style.backgroundColor = var(--info-bg);
+            copyStatus.style.color = var(--info-text);
+            setTimeout(() => copyStatus.style.display = 'none', 3000);
         }
     }
 
-    // Initial load: Fetch all data and display the default tab
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchAllDataAndDisplay();
-        // Ensure the correct tab content is visible and button active on load
-        document.getElementById('vcf-downloads').style.display = 'block';
-        document.querySelector('.tab-button').classList.add('active');
-    });
-  </script>
+    // Initial data fetch and display when the page loads
+    document.addEventListener("DOMContentLoaded", fetchAllDataAndDisplay);
 
+  </script>
 </body>
 </html>
