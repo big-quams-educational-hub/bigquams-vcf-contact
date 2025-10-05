@@ -5,6 +5,7 @@
   <title>Big Quams Connect - Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    /* CSS Styles (unchanged from previous iterations) */
     :root {
       --primary-blue: #007BFF; /* Main Blue for buttons, headings */
       --secondary-orange: #FF8C00; /* Accent Orange for highlights */
@@ -183,7 +184,7 @@
     <div id="data-table" class="data-load-message">Loading contacts...</div>
     
     <div class="button-group">
-        <button class="download-button" onclick="downloadNewMembersVCF()">Download New Members VCF</button>
+        <button class="download-button" onclick="downloadNewMembersVCF()">Download New Members (since last download)</button>
         <button class="download-button primary" onclick="downloadAllMembersVCF()">Download All Members VCF</button>
     </div>
     
@@ -194,7 +195,15 @@
   </div>
 
   <script>
-    const API_URL = "https://sheetdb.io/api/v1/203f2csgdcsp0"; // Ensure this is your correct SheetDB URL
+    const API_URL = "https://sheetdb.io/api/v1/203f2csgdcsp0"; // IMPORTANT: Ensure this is your correct SheetDB URL
+
+    // --- CONFIGURATION FOR ADMIN LAST DOWNLOAD DATE ---
+    // IMPORTANT: This must exactly match the header of the column you added in Google Sheet for tracking
+    const LAST_DOWNLOAD_MARKER_COLUMN = "admin_last_download"; 
+    // IMPORTANT: This must match the row number in your Google Sheet where the marker is stored.
+    // If it's in the first data row (below headers), it's 2.
+    const TRACKING_ROW_ID = 2; 
+
 
     // Utility function to create and trigger VCF download
     const triggerDownload = (content, filename) => {
@@ -236,6 +245,8 @@
                                     <th>State</th>
                                     <th>Phone</th>
                                     <th>Member Type</th>
+                                    <th>Join Date</th>
+                                    <th>Admin Last Download</th> 
                                 </tr>
                             </thead>
                             <tbody>`;
@@ -243,13 +254,18 @@
             const name = entry.name || 'N/A';
             const state = entry.state || 'N/A';
             const phone = entry.phone || 'N/A';
-            const memberType = entry.membertype || 'New'; // Default to 'New' if not set
+            const memberType = entry.membertype || 'N/A';
+            const joinDate = entry.joindate || 'N/A';
+            // Display the tracking date from the designated column
+            const lastDownload = entry[LAST_DOWNLOAD_MARKER_COLUMN] || 'N/A'; 
 
             tableHtml += `<tr>
                             <td>${name}</td>
                             <td>${state}</td>
                             <td>${phone}</td>
                             <td>${memberType}</td>
+                            <td>${joinDate}</td>
+                            <td>${lastDownload}</td>
                           </tr>`;
           });
           tableHtml += `</tbody></table>`;
@@ -261,7 +277,7 @@
         });
     }
 
-    // --- DOWNLOAD NEW MEMBERS VCF AND UPDATE STATUS ---
+    // --- DOWNLOAD NEW MEMBERS (SINCE LAST ADMIN DOWNLOAD) VCF ---
     async function downloadNewMembersVCF() {
         try {
             const response = await fetch(API_URL);
@@ -270,58 +286,81 @@
             }
             const data = await response.json();
 
-            let newMembersVCFContent = "";
-            const updates = []; // To store updates for SheetDB
+            // 1. Get the last download date from the tracking row
+            // We assume the tracking date is in the 'LAST_DOWNLOAD_MARKER_COLUMN' of the row identified by TRACKING_ROW_ID.
+            // Since SheetDB's API returns data as an array, data[0] corresponds to the row with id=2
+            // data[TRACKING_ROW_ID - 2] would be the general way to access if TRACKING_ROW_ID could vary.
+            // For TRACKING_ROW_ID = 2, it's simply data[0].
+            const trackingEntry = data.find(row => row.id == TRACKING_ROW_ID) || data[0]; // More robust to find by ID
+            let lastDownloadTimestamp = null;
 
-            data.forEach((entry, index) => {
+            if (trackingEntry && trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]) {
+                lastDownloadTimestamp = new Date(trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]);
+                // Validate if it's a real date
+                if (isNaN(lastDownloadTimestamp.getTime())) {
+                    lastDownloadTimestamp = null; // Invalid date, treat as if no previous download
+                }
+            }
+            
+            // If no valid date found, set a very old date to get all existing members on the first run
+            const filterCutoffDate = lastDownloadTimestamp || new Date('2000-01-01T00:00:00Z'); 
+
+            let newMembersVCFContent = "";
+            let newMembersCount = 0;
+            const currentDownloadTimestamp = new Date().toISOString(); // To update the marker with current time
+
+            data.forEach((entry) => {
                 const name = entry.name || 'Unknown';
                 const phone = entry.phone || '';
-                const memberType = (entry.membertype || 'New').toLowerCase(); 
+                const joinDateStr = entry.joindate;
 
-                // If 'membertype' is 'New' (or not set), include in new VCF and prepare for update
-                if (phone && (memberType === 'new' || memberType === 'n/a')) {
-                    const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
-                    newMembersVCFContent += vcardEntry;
-                    updates.push({
-                        "id": index + 2, // SheetDB often uses row numbers starting from 2 for first data row
-                        "membertype": "Old"
-                    });
+                // Ensure we don't process the tracking row itself as a 'member'
+                if (entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN]) {
+                    return; // Skip the tracking row if it's mixed with member data
+                }
+
+                if (phone && joinDateStr) {
+                    const memberJoinDate = new Date(joinDateStr);
+                    // Include if joindate is valid and strictly AFTER the last admin download date
+                    if (!isNaN(memberJoinDate.getTime()) && memberJoinDate > filterCutoffDate) {
+                        const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
+                        newMembersVCFContent += vcardEntry;
+                        newMembersCount++;
+                    }
                 }
             });
 
             if (newMembersVCFContent) {
-                triggerDownload(newMembersVCFContent, "campusconnect_new_members.vcf");
-                alert("New members VCF downloaded. Updating their status to 'Old'...");
+                triggerDownload(newMembersVCFContent, `campusconnect_new_members_since_${new Date(filterCutoffDate).toISOString().slice(0,10)}.vcf`);
+                alert(`${newMembersCount} new members downloaded since last admin download. Updating tracking date...`);
 
-                // Batch update membertype for downloaded contacts
-                if (updates.length > 0) {
-                    try {
-                        const updateResponse = await fetch(`${API_URL}/id`, {
-                            method: 'PATCH',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ data: updates })
-                        });
-
-                        if (!updateResponse.ok) {
-                            throw new Error(`SheetDB update failed! status: ${updateResponse.status}`);
+                // 2. Update the last download date in SheetDB to the current time
+                const updateResponse = await fetch(`${API_URL}/id/${TRACKING_ROW_ID}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        data: {
+                            [LAST_DOWNLOAD_MARKER_COLUMN]: currentDownloadTimestamp
                         }
-                        await updateResponse.json();
-                        console.log("Member types updated successfully.");
-                        fetchData(); // Refresh table to show updated status
-                    } catch (updateError) {
-                        console.error("Error updating member types:", updateError);
-                        alert("VCF downloaded, but failed to update member types. Please check console.");
-                    }
+                    })
+                });
+
+                if (!updateResponse.ok) {
+                    throw new Error(`SheetDB tracking date update failed! status: ${updateResponse.status}`);
                 }
+                await updateResponse.json();
+                console.log("Admin last download tracking date updated successfully.");
+                fetchData(); // Refresh table to show updated tracking date
+                
             } else {
-                alert("No new members found to download.");
+                alert(`No new members found since last admin download (${new Date(filterCutoffDate).toLocaleString()}).`);
             }
 
         } catch (error) {
             console.error("Error processing new members VCF:", error);
-            alert("Failed to download new members VCF. Please try again.");
+            alert("Failed to download new members VCF. Please try again. Check console for details.");
         }
     }
 
@@ -341,6 +380,11 @@
                 const name = entry.name || 'Unknown';
                 const phone = entry.phone || '';
 
+                // Ensure we don't process the tracking row itself as a 'member' for All Members file
+                if (entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN]) {
+                    return; // Skip the tracking row
+                }
+
                 if (phone) { // Only add if phone number exists
                     const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
                     allMembersVCFContent += vcardEntry;
@@ -348,7 +392,7 @@
             });
 
             if (allMembersVCFContent) {
-                triggerDownload(allMembersVCFContent, "campusconnect_all_members.vcf");
+                triggerDownload(allMembersVCFContent, `campusconnect_all_members_${new Date().toISOString().slice(0,10)}.vcf`);
                 alert("All members VCF downloaded. Check your downloads folder.");
             } else {
                 alert("No members found to download.");
