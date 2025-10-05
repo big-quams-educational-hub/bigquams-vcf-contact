@@ -45,6 +45,10 @@
       
       --whatsapp-color: #25D366; /* WhatsApp brand green */
       --whatsapp-dark-color: #1DA851; /* Darker green for hover */
+
+      --warning-red: #DC3545; /* Red for warnings */
+      --warning-bg: #F8D7DA;
+      --warning-border: #F5C6CB;
     }
 
     body {
@@ -270,6 +274,23 @@
         margin-top: 20px;
     }
 
+    /* New style for the warning message */
+    .warning-message {
+        background-color: var(--warning-bg);
+        color: var(--warning-red);
+        border: 1px solid var(--warning-border);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 0 auto 20px auto; /* Centered with some bottom margin */
+        font-size: 0.95rem;
+        font-weight: 600;
+        max-width: 90%; /* Ensure it's responsive */
+    }
+    .warning-message strong {
+        color: var(--warning-red);
+    }
+
     .footer-love {
         text-align: center;
         font-size: 0.85rem;
@@ -322,6 +343,12 @@
 
         p {
             font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .warning-message {
+            font-size: 0.85rem;
+            padding: 12px;
             margin-bottom: 15px;
         }
 
@@ -407,6 +434,11 @@
   <div class="container">
     <h2>Join Our Campus Network!</h2>
     <p>Connect with fellow students across Nigeria. Fill out the form below to get started.</p>
+    
+    <!-- NEW: Warning Message for Single Entry -->
+    <div class="warning-message">
+        <strong>Important:</strong> Please submit your details only <strong>ONCE</strong>. Multiple entries from the same user may lead to disqualification.
+    </div>
 
     <form id="contact-form">
       <div class="form-group">
@@ -541,6 +573,7 @@
         form.reset(); // Clear the form
         form.style.display = 'none'; // Hide the form
         generalWhatsAppButton.style.display = 'none'; // Hide the general WhatsApp button too
+        document.querySelector('.warning-message').style.display = 'none'; // Hide the warning message
         successMessage.style.display = 'block'; // Show the success message
       })
       .catch(error => {
