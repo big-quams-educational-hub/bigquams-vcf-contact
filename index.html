@@ -233,7 +233,7 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-        margin-top: 15px;
+        margin-top: 15px; /* Adjust spacing as needed */
     }
     .whatsapp-button:hover {
         background-color: var(--whatsapp-dark-color);
@@ -436,6 +436,11 @@
       <button type="submit">Submit My Details</button>
     </form>
 
+    <!-- NEW: General WhatsApp Join Button -->
+    <a href="https://chat.whatsapp.com/Hiu0e5OTvUIIk6Rq3ndsUA" target="_blank" class="whatsapp-button general-whatsapp-button">
+        <span class="whatsapp-icon">📱</span> Join Our WhatsApp Group
+    </a>
+
     <!-- Success Message Container - now includes WhatsApp button -->
     <div id="success-message" class="success-message">
       <p>Fantastic! Your details have been submitted successfully. To get your VCF file and stay connected, join our WhatsApp group below!</p>
@@ -455,6 +460,7 @@
     const form = document.getElementById('contact-form');
     const successMessage = document.getElementById('success-message');
     const stateSelect = document.getElementById('state');
+    const generalWhatsAppButton = document.querySelector('.general-whatsapp-button'); // Get the new button
 
     const nigerianStates = [
       "Abia", "Adamawa", "Akwa Ibom", "Anambra", "FCT Abuja", "Bauchi", "Bayelsa", "Benue", "Borno", 
@@ -534,6 +540,7 @@
         console.log('Success:', result);
         form.reset(); // Clear the form
         form.style.display = 'none'; // Hide the form
+        generalWhatsAppButton.style.display = 'none'; // Hide the general WhatsApp button too
         successMessage.style.display = 'block'; // Show the success message
       })
       .catch(error => {
