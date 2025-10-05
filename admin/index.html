@@ -55,22 +55,45 @@
         text-align: center;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         margin-bottom: 30px;
-        display: flex; /* Added for logo alignment */
-        justify-content: center; /* Added for logo alignment */
-        align-items: center; /* Added for logo alignment */
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        position: relative; /* Needed for absolute positioning of background image */
+        overflow: hidden; /* Hide parts of the image that exceed header bounds */
+        min-height: 120px; /* Give some height for the background image */
     }
+    .header::before { /* Pseudo-element for the background image */
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://ik.imagekit.io/bigquamsmedia/GeneratedImageOctober042025-8_05P.jpeg?updatedAt=1759625291715'); /* Your provided image URL */
+        background-size: cover; /* Cover the entire header area */
+        background-position: center; /* Center the image */
+        filter: brightness(0.5); /* Darken the image to make text more readable */
+        z-index: 1; /* Place behind text */
+    }
+
+    .header-content { /* Wrapper for header text to ensure it's above the background */
+        position: relative;
+        z-index: 2; /* Place above the pseudo-element background */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%; /* Ensure content takes full height of header */
+    }
+
     .header h1 {
         margin: 0;
         font-size: 1.8rem;
         font-weight: 700;
-        margin-left: 10px; /* Space between logo and title */
+        /* No margin-left needed if logo is removed, or adjust if you add a different logo */
     }
-    .header .logo { /* Style for a potential logo image */
-        height: 40px; /* Adjust as needed */
-        width: auto;
-        vertical-align: middle;
-        margin-right: 10px; /* Space between logo and text */
-        border-radius: 5px; /* Slightly rounded corners for a logo */
+    .header .logo { /* Kept for reference, but removed from HTML */
+        display: none; /* Hide the logo as it's now a background */
     }
 
 
@@ -194,9 +217,9 @@
 </head>
 <body>
   <div class="header">
-      <!-- Big Quams Connect Logo - Now using your provided URL -->
-      <img src="https://ik.imagekit.io/bigquamsmedia/GeneratedImageOctober042025-8_05P.jpeg?updatedAt=1759625291715" alt="Big Quams Logo" class="logo"> 
-      <h1>Big Quams Connect Admin</h1>
+      <div class="header-content">
+          <h1>Big Quams Connect Admin</h1>
+      </div>
   </div>
 
   <div class="panel" id="admin-panel">
