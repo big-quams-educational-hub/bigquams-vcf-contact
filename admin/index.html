@@ -394,7 +394,8 @@
   </div>
 
   <script>
-    const API_URL = "https://sheetdb.io/api/v1/203f2csgdcsp0"; // IMPORTANT: Ensure this is your correct SheetDB URL
+    const API_URL = "https://sheetdb.io/api/v1/lcqbyo961rmzf"; // <--- UPDATED API URL HERE!
+
     const CONTACTS_PER_BATCH = 100; // Define how many contacts per VCF file batch
 
     // --- CONFIGURATION FOR ADMIN LAST DOWNLOAD DATE ---
@@ -475,21 +476,27 @@
 
     // --- FETCH ALL DATA AND INITIAL DISPLAY ---
     async function fetchAllDataAndDisplay() {
+        console.log("Attempting to fetch data from:", API_URL); // Debugging log
         try {
             const response = await fetch(API_URL);
+            console.log("API Response received:", response); // Debugging log
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const rawData = await response.json();
+            console.log("Raw data from API:", rawData); // Debugging log
             
             // Filter out the tracking row from the contacts array
             allContactsData = rawData.filter(entry => 
                 !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
             );
+            console.log("Filtered contacts data:", allContactsData); // Debugging log
             
             if (!allContactsData || allContactsData.length === 0) {
                 document.getElementById("data-table").innerHTML = "<p class='data-load-message'>No contacts found.</p>";
                 document.getElementById("whatsapp-contacts-table").innerHTML = "<p class='data-load-message'>No WhatsApp contacts found.</p>";
+                console.log("No contacts found after filtering or raw data was empty."); // Debugging log
                 return;
             }
 
@@ -548,4 +555,197 @@
                         </tr>`;
         });
         tableHtml += `</tbody></table>`;
-        dataTableDiv.innerHTML = tab
+        dataTableDiv.innerHTML = tableHtml;
+    }
+
+    // --- Display function for WhatsApp Contacts Tab ---
+    function displayWhatsAppContacts(data) {
+        const whatsappTableDiv = document.getElementById("whatsapp-contacts-table");
+        if (!data || data.length === 0) {
+            whatsappTableDiv.innerHTML = "<p class='data-load-message'>No WhatsApp contacts found.</p>";
+            return;
+        }
+
+        let tableHtml = `<table>
+                            <thead>
+                                <tr>
+                                    <th>S/N</th>
+                                    <th>Name</th>
+                                    <th>Phone Number</th>
+                                    <th>State</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+        data.forEach((entry, index) => {
+            const name = entry.name || 'N/A';
+            const phone = entry.phone || 'N/A';
+            const state = entry.state || 'N/A';
+
+            tableHtml += `<tr>
+                            <td>${index + 1}</td>
+                            <td>${name}</td>
+                            <td>${phone}</td>
+                            <td>${state}</td>
+                          </tr>`;
+        });
+        tableHtml += `</tbody></table>`;
+        whatsappTableDiv.innerHTML = tableHtml;
+    }
+
+    // --- DOWNLOAD NEW MEMBERS (SINCE LAST ADMIN DOWNLOAD) VCF ---
+    async function downloadNewMembersVCF() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            // Find the tracking row
+            const trackingEntry = data.find(row => row.id == TRACKING_ROW_ID); 
+            let lastDownloadTimestamp = null;
+
+            if (trackingEntry && trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]) {
+                lastDownloadTimestamp = new Date(trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]);
+                if (isNaN(lastDownloadTimestamp.getTime())) {
+                    lastDownloadTimestamp = null; 
+                }
+            }
+            
+            const filterCutoffDate = lastDownloadTimestamp || new Date('2000-01-01T00:00:00Z'); 
+
+            let newMembersVCFContent = "";
+            let newMembersCount = 0;
+            const currentDownloadTimestamp = new Date().toISOString(); 
+
+            // Filter out the tracking row from the contact processing
+            const actualContacts = data.filter(entry => 
+                !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
+            );
+            
+            actualContacts.forEach(contact => {
+                const joinDate = new Date(contact.joindate); // Assuming joindate exists
+                if (!isNaN(joinDate.getTime()) && joinDate > filterCutoffDate) {
+                    newMembersVCFContent += generateVCFContent(contact);
+                    newMembersCount++;
+                }
+            });
+
+            if (newMembersCount > 0) {
+                const formattedDate = new Date().toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+                const filename = `CampusConnect_NewMembers_${formattedDate}.vcf`;
+                triggerDownload(newMembersVCFContent, filename);
+                alert(`${newMembersCount} new contacts downloaded in ${filename}!`);
+                
+                // Update the last download marker in SheetDB
+                await fetch(`${API_URL}/id/${TRACKING_ROW_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: {
+                            [LAST_DOWNLOAD_MARKER_COLUMN]: currentDownloadTimestamp
+                        }
+                    })
+                });
+                console.log("Updated last download marker in SheetDB.");
+
+            } else {
+                alert("No new members found since the last download.");
+            }
+
+        } catch (error) {
+            console.error("Error downloading new members VCF:", error);
+            alert("Failed to download new members VCF. Please check the console for details.");
+        }
+    }
+
+    // --- GENERATE ALL MEMBERS VCF BATCHES ---
+    function generateAllMembersVCFBatches() {
+        const batchContainer = document.getElementById('vcf-batch-downloads-container');
+        batchContainer.innerHTML = ''; // Clear previous batches
+
+        if (!allContactsData || allContactsData.length === 0) {
+            batchContainer.innerHTML = "<p class='data-load-message'>No contacts available to generate batches.</p>";
+            return;
+        }
+
+        const totalBatches = Math.ceil(allContactsData.length / CONTACTS_PER_BATCH);
+        const now = new Date();
+        const folderDate = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+        const folderTime = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+        const folderName = `CampusConnect NG files - ${folderDate}_${folderTime}`;
+
+        let batchHtml = `<div class="vcf-batch-container">
+                            <h3><i class="fas fa-folder"></i> ${folderName}</h3>
+                            <div class="button-group">`;
+
+        for (let i = 0; i < totalBatches; i++) {
+            const start = i * CONTACTS_PER_BATCH;
+            const end = Math.min((i + 1) * CONTACTS_PER_BATCH, allContactsData.length);
+            const batchContacts = allContactsData.slice(start, end);
+
+            let vcfContent = "";
+            batchContacts.forEach(contact => {
+                vcfContent += generateVCFContent(contact);
+            });
+
+            const batchNumber = String(i + 1).padStart(2, '0');
+            const filename = `CampusConnect_NG_Batch_${batchNumber}_${folderDate}_${folderTime}.vcf`;
+
+            // Create a temporary blob URL for the VCF content
+            const blob = new Blob([vcfContent], { type: "text/vcard;charset=utf-8" });
+            const blobUrl = URL.createObjectURL(blob);
+
+            batchHtml += `<a href="${blobUrl}" download="${filename}" class="action-button green">
+                            <i class="fas fa-file-download"></i> Download Batch ${i + 1} (${batchContacts.length} contacts)
+                          </a>`;
+        }
+        batchHtml += `</div></div>`;
+        batchContainer.innerHTML = batchHtml;
+        alert(`${totalBatches} VCF batches generated for download.`);
+    }
+
+
+    // --- COPY ALL WHATSAPP NUMBERS ---
+    function copyAllWhatsAppNumbers() {
+        const whatsappNumbers = allContactsData
+            .map(entry => entry.phone)
+            .filter(phone => phone) // Filter out null/empty phones
+            .join('\n'); // Join with newline for easy pasting
+
+        const copyStatusDiv = document.getElementById('copy-status');
+
+        if (whatsappNumbers) {
+            navigator.clipboard.writeText(whatsappNumbers)
+                .then(() => {
+                    copyStatusDiv.innerText = `Successfully copied ${allContactsData.length} WhatsApp numbers!`;
+                    copyStatusDiv.style.display = 'block';
+                    copyStatusDiv.style.backgroundColor = 'var(--success-bg)';
+                    copyStatusDiv.style.color = 'var(--success-text)';
+                    setTimeout(() => copyStatusDiv.style.display = 'none', 5000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy WhatsApp numbers: ', err);
+                    copyStatusDiv.innerText = 'Failed to copy WhatsApp numbers. Please try again.';
+                    copyStatusDiv.style.display = 'block';
+                    copyStatusDiv.backgroundColor = '#f8d7da'; /* Bootstrap danger light */
+                    copyStatusDiv.color = '#721c24'; /* Bootstrap danger dark */
+                    setTimeout(() => copyStatusDiv.style.display = 'none', 5000);
+                });
+        } else {
+            copyStatusDiv.innerText = 'No WhatsApp numbers available to copy.';
+            copyStatusDiv.style.display = 'block';
+            copyStatusDiv.backgroundColor = 'var(--info-bg)';
+            copyStatusDiv.color = 'var(--info-text)';
+            setTimeout(() => copyStatusDiv.style.display = 'none', 5000);
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', fetchAllDataAndDisplay);
+  </script>
+</body>
+</html>
