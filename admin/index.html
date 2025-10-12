@@ -277,6 +277,29 @@
         display: none; /* Hidden by default */
     }
 
+    .vcf-batch-container {
+        margin-top: 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 15px;
+        background-color: var(--light-gray-bg);
+    }
+
+    .vcf-batch-container h3 {
+        color: var(--primary-blue);
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+    }
+
+    .vcf-batch-container .button-group {
+        justify-content: flex-start; /* Align buttons to the left */
+        margin-top: 10px;
+        gap: 10px; /* Smaller gap for batch buttons */
+    }
+
     .footer-love {
         text-align: center;
         font-size: 0.85rem;
@@ -316,6 +339,13 @@
             padding: 8px 15px;
             font-size: 0.9rem;
         }
+        .vcf-batch-container .button-group {
+             flex-direction: column; /* Stack batch buttons on small screens */
+             align-items: flex-start; /* Align stacked buttons to the left */
+        }
+        .vcf-batch-container .action-button {
+            width: fit-content; /* Make batch buttons naturally sized */
+        }
     }
   </style>
 </head>
@@ -334,12 +364,16 @@
     </div>
 
     <div id="vcf-downloads" class="tab-content active">
-        <h2>VCF Contact List</h2>
+        <h2>VCF Contact List & Downloads</h2>
         <div id="data-table" class="data-load-message">Loading contacts...</div>
         
         <div class="button-group">
             <button class="action-button green" onclick="downloadNewMembersVCF()"><i class="fas fa-arrow-down"></i> Download New Members (since last download)</button>
-            <button class="action-button blue" onclick="downloadAllMembersVCF()"><i class="fas fa-download"></i> Download All Members VCF</button>
+            <button class="action-button blue" onclick="generateAllMembersVCFBatches()"><i class="fas fa-download"></i> Generate All Members VCF Batches</button>
+        </div>
+
+        <div id="vcf-batch-downloads-container">
+            <!-- VCF batch download links will be dynamically inserted here -->
         </div>
     </div>
 
@@ -361,6 +395,7 @@
 
   <script>
     const API_URL = "https://sheetdb.io/api/v1/203f2csgdcsp0"; // IMPORTANT: Ensure this is your correct SheetDB URL
+    const CONTACTS_PER_BATCH = 100; // Define how many contacts per VCF file batch
 
     // --- CONFIGURATION FOR ADMIN LAST DOWNLOAD DATE ---
     // IMPORTANT: This must exactly match the header of the column you added in Google Sheet for tracking
@@ -389,6 +424,27 @@
         }
     };
 
+    // --- Generate VCF Content for a single contact ---
+    function generateVCFContent(contact) {
+        if (!contact || !contact.name || !contact.phone) {
+            return ''; // Skip if essential data is missing
+        }
+
+        const name = contact.name.trim();
+        const phone = contact.phone.trim().replace(/\D/g, ''); // Remove non-digits
+        const state = contact.state ? contact.state.trim() : '';
+
+        let vcf = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
+        vcf += `FN:${name}\r\n`;
+        vcf += `N:${name};;;\r\n`; // Family Name; Given Name; Middle Names; Prefix; Suffix
+        vcf += `TEL;TYPE=CELL:${phone}\r\n`;
+        if (state) {
+            vcf += `NOTE:State: ${state}\r\n`;
+        }
+        vcf += `END:VCARD\r\n`;
+        return vcf;
+    }
+
     // --- Tab Switching Logic ---
     function openTab(evt, tabName) {
         var i, tabcontent, tabbuttons;
@@ -408,6 +464,12 @@
             displayWhatsAppContacts(allContactsData);
         } else if (tabName === 'vcf-downloads') {
             displayVCFTable(allContactsData);
+            // Re-render batch buttons if the tab is opened
+            if (document.getElementById('vcf-batch-downloads-container').innerHTML !== '') {
+                // If batches were already generated, don't clear them
+            } else {
+                document.getElementById('vcf-batch-downloads-container').innerHTML = ''; // Clear if not generated
+            }
         }
     }
 
@@ -418,25 +480,25 @@
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            allContactsData = await response.json();
+            const rawData = await response.json();
             
-            // Filter out the tracking row if it's mixed with contact data
-            const actualContacts = allContactsData.filter(entry => 
+            // Filter out the tracking row from the contacts array
+            allContactsData = rawData.filter(entry => 
                 !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
             );
             
-            if (!actualContacts || actualContacts.length === 0) {
+            if (!allContactsData || allContactsData.length === 0) {
                 document.getElementById("data-table").innerHTML = "<p class='data-load-message'>No contacts found.</p>";
                 document.getElementById("whatsapp-contacts-table").innerHTML = "<p class='data-load-message'>No WhatsApp contacts found.</p>";
                 return;
             }
 
             // Display initially active tab content
-            const activeTab = document.querySelector('.tab-button.active');
-            if (activeTab && activeTab.id === 'whatsapp-contacts-tab') { // Assuming you might give IDs to buttons
-                displayWhatsAppContacts(actualContacts);
+            const activeTabButton = document.querySelector('.tab-button.active');
+            if (activeTabButton && activeTabButton.id === 'whatsapp-contacts-tab') { // Assuming you might give IDs to buttons
+                displayWhatsAppContacts(allContactsData);
             } else { // Default to VCF Downloads tab
-                displayVCFTable(actualContacts);
+                displayVCFTable(allContactsData);
             }
 
         } catch (error) {
@@ -472,6 +534,8 @@
             const phone = entry.phone || 'N/A';
             const memberType = entry.membertype || 'N/A';
             const joinDate = entry.joindate || 'N/A';
+            // Note: LAST_DOWNLOAD_MARKER_COLUMN is for the tracking row, not individual contacts
+            // This column will likely be empty for actual contact rows unless you have it in your sheet.
             const lastDownload = entry[LAST_DOWNLOAD_MARKER_COLUMN] || 'N/A'; 
 
             tableHtml += `<tr>
@@ -484,225 +548,4 @@
                         </tr>`;
         });
         tableHtml += `</tbody></table>`;
-        dataTableDiv.innerHTML = tableHtml;
-    }
-
-    // --- Display function for WhatsApp Contacts Tab ---
-    function displayWhatsAppContacts(data) {
-        const whatsappTableDiv = document.getElementById("whatsapp-contacts-table");
-        if (!data || data.length === 0) {
-            whatsappTableDiv.innerHTML = "<p class='data-load-message'>No WhatsApp contacts found.</p>";
-            return;
-        }
-
-        let tableHtml = `<table>
-                            <thead>
-                                <tr>
-                                    <th>S/N</th>
-                                    <th>Name</th>
-                                    <th>Phone Number</th>
-                                    <th>State</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
-        data.forEach((entry, index) => {
-            const name = entry.name || 'N/A';
-            const phone = entry.phone || 'N/A';
-            const state = entry.state || 'N/A';
-
-            tableHtml += `<tr>
-                            <td>${index + 1}</td>
-                            <td>${name}</td>
-                            <td>${phone}</td>
-                            <td>${state}</td>
-                          </tr>`;
-        });
-        tableHtml += `</tbody></table>`;
-        whatsappTableDiv.innerHTML = tableHtml;
-    }
-
-
-    // --- DOWNLOAD NEW MEMBERS (SINCE LAST ADMIN DOWNLOAD) VCF ---
-    async function downloadNewMembersVCF() {
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-
-            // Find the tracking row
-            const trackingEntry = data.find(row => row.id == TRACKING_ROW_ID); 
-            let lastDownloadTimestamp = null;
-
-            if (trackingEntry && trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]) {
-                lastDownloadTimestamp = new Date(trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]);
-                if (isNaN(lastDownloadTimestamp.getTime())) {
-                    lastDownloadTimestamp = null; 
-                }
-            }
-            
-            const filterCutoffDate = lastDownloadTimestamp || new Date('2000-01-01T00:00:00Z'); 
-
-            let newMembersVCFContent = "";
-            let newMembersCount = 0;
-            const currentDownloadTimestamp = new Date().toISOString(); 
-
-            // Filter out the tracking row from the contact processing
-            const actualContacts = data.filter(entry => 
-                !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
-            );
-
-            actualContacts.forEach((entry) => {
-                const name = entry.name || 'Unknown';
-                const phone = entry.phone || '';
-                const joinDateStr = entry.joindate;
-
-                if (phone && joinDateStr) {
-                    const memberJoinDate = new Date(joinDateStr);
-                    if (!isNaN(memberJoinDate.getTime()) && memberJoinDate > filterCutoffDate) {
-                        const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
-                        newMembersVCFContent += vcardEntry;
-                        newMembersCount++;
-                    }
-                }
-            });
-
-            if (newMembersVCFContent) {
-                triggerDownload(newMembersVCFContent, `campusconnect_new_members_since_${new Date(filterCutoffDate).toISOString().slice(0,10)}.vcf`);
-                alert(`${newMembersCount} new members downloaded since last admin download. Updating tracking date...`);
-
-                // Update the tracking date in SheetDB
-                const updateResponse = await fetch(`${API_URL}/id/${TRACKING_ROW_ID}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        data: {
-                            [LAST_DOWNLOAD_MARKER_COLUMN]: currentDownloadTimestamp
-                        }
-                    })
-                });
-
-                if (!updateResponse.ok) {
-                    throw new Error(`SheetDB tracking date update failed! status: ${updateResponse.status}`);
-                }
-                await updateResponse.json();
-                console.log("Admin last download tracking date updated successfully.");
-                fetchAllDataAndDisplay(); // Refresh data and tables
-                
-            } else {
-                alert(`No new members found since last admin download (${new Date(filterCutoffDate).toLocaleString()}).`);
-            }
-
-        } catch (error) {
-            console.error("Error processing new members VCF:", error);
-            alert("Failed to download new members VCF. Please try again. Check console for details.");
-        }
-    }
-
-
-    // --- DOWNLOAD ALL MEMBERS VCF ---
-    async function downloadAllMembersVCF() {
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-
-            let allMembersVCFContent = "";
-
-            // Filter out the tracking row
-            const actualContacts = data.filter(entry => 
-                !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
-            );
-
-            actualContacts.forEach(entry => {
-                const name = entry.name || 'Unknown';
-                const phone = entry.phone || '';
-
-                if (phone) { 
-                    const vcardEntry = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phone}\nEND:VCARD\n`;
-                    allMembersVCFContent += vcardEntry;
-                }
-            });
-
-            if (allMembersVCFContent) {
-                triggerDownload(allMembersVCFContent, `campusconnect_all_members_${new Date().toISOString().slice(0,10)}.vcf`);
-                alert("All members VCF downloaded. Check your downloads folder.");
-            } else {
-                alert("No members found to download.");
-            }
-
-        } catch (error) {
-            console.error("Error downloading all members VCF:", error);
-            alert("Failed to download all members VCF. Please try again.");
-        }
-    }
-
-    // --- Copy All WhatsApp Numbers Functionality ---
-    async function copyAllWhatsAppNumbers() {
-        const copyStatusDiv = document.getElementById("copy-status");
-        copyStatusDiv.style.display = 'none'; // Hide previous status
-
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-
-            let contactList = "";
-            let count = 0;
-
-            // Filter out the tracking row
-            const actualContacts = data.filter(entry => 
-                !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
-            );
-
-            actualContacts.forEach((entry) => {
-                const phone = entry.phone;
-                if (phone) {
-                    count++;
-                    contactList += `${count}. ${phone}\n`;
-                }
-            });
-
-            if (contactList) {
-                await navigator.clipboard.writeText(contactList);
-                copyStatusDiv.textContent = `Successfully copied ${count} WhatsApp numbers to clipboard!`;
-                copyStatusDiv.style.display = 'block';
-                console.log("All WhatsApp numbers copied:", contactList);
-            } else {
-                copyStatusDiv.textContent = "No WhatsApp numbers found to copy.";
-                copyStatusDiv.style.display = 'block';
-            }
-
-            // Hide the status message after a few seconds
-            setTimeout(() => {
-                copyStatusDiv.style.display = 'none';
-            }, 5000); // 5 seconds
-
-        } catch (error) {
-            console.error("Error copying WhatsApp numbers:", error);
-            copyStatusDiv.textContent = "Failed to copy numbers. Please ensure you're on HTTPS and try again.";
-            copyStatusDiv.style.display = 'block';
-            setTimeout(() => {
-                copyStatusDiv.style.display = 'none';
-            }, 5000);
-        }
-    }
-
-    // Initial load: Fetch all data and display the default tab
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchAllDataAndDisplay();
-        // Ensure the correct tab content is visible and button active on load
-        document.getElementById('vcf-downloads').style.display = 'block';
-        document.querySelector('.tab-button').classList.add('active');
-    });
-  </script>
-
-</body>
-</html>
+        dataTableDiv.innerHTML = tab
