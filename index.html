@@ -164,10 +164,20 @@ const states=[
 "Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara"
 ].sort();
 
-const stateSelect=document.getElementById("state");
-states.forEach(s=>{
-  const o=document.createElement("option");
-  o.value=s;o.textContent=s;
+const stateSelect = document.getElementById("state");
+
+// Add default placeholder
+const defaultOption = document.createElement("option");
+defaultOption.value = "";
+defaultOption.textContent = "Choose State";
+defaultOption.disabled = true;
+defaultOption.selected = true;
+stateSelect.appendChild(defaultOption);
+
+states.forEach(s => {
+  const o = document.createElement("option");
+  o.value = s;
+  o.textContent = s;
   stateSelect.appendChild(o);
 });
 
@@ -188,13 +198,25 @@ form.addEventListener("submit",async e=>{
   e.preventDefault();
 
   let data=Object.fromEntries(new FormData(form));
-  const phone=normalizePhone(data.phone);
 
-  if(!phone){
-    alert("Invalid Nigerian phone number");
+  // VALIDATE ALL FIELDS
+  if(!data.name.trim()){
+    alert("Please enter your name.");
     return;
   }
-
+  if(!data.state){
+    alert("Please select your state.");
+    return;
+  }
+  if(!data.institution.trim()){
+    alert("Please enter your tertiary institution.");
+    return;
+  }
+  const phone=normalizePhone(data.phone);
+  if(!phone){
+    alert("Invalid Nigerian phone number.");
+    return;
+  }
   data.phone=phone;
   data.joindate=new Date().toISOString().slice(0,19).replace("T"," ");
 
