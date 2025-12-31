@@ -2,187 +2,121 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Big Quams Connect – Admin Panel</title>
+<title>CampusConnect NG – Admin VCF Panel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <style>
 :root{
---primary-blue:#007BFF;
+--blue:#007BFF;
 --green:#28A745;
---light:#F8F9FA;
---border:#CED4DA;
---shadow:rgba(0,0,0,.12);
---whatsapp:#25D366
+--gray:#6c757d;
+--light:#f8f9fa;
+--border:#ced4da;
+--shadow:rgba(0,0,0,.15);
 }
 body{
 margin:0;
 font-family:Segoe UI,Roboto,sans-serif;
 background:var(--light);
 display:flex;
-flex-direction:column;
-align-items:center
-}
-.header{
-width:100%;
-height:120px;
-background:url('https://ik.imagekit.io/bigquamsmedia/GeneratedImageOctober042025-8_05P.jpeg?updatedAt=1759625291715') center/cover no-repeat;
-display:flex;
-align-items:center;
 justify-content:center;
-color:#fff;
-position:relative
 }
-.header::after{
-content:"";
-position:absolute;
-inset:0;
-background:rgba(0,0,0,.55)
-}
-.header h1{z-index:1}
-.panel{
+.container{
+width:95%;
+max-width:900px;
 background:#fff;
-width:90%;
-max-width:1000px;
-padding:30px;
 margin:30px 0;
+padding:30px;
 border-radius:12px;
-box-shadow:0 8px 25px var(--shadow)
+box-shadow:0 8px 25px var(--shadow);
 }
-.tabs{
+h1{
+text-align:center;
+color:var(--blue);
+margin-bottom:10px;
+}
+p.note{
+text-align:center;
+color:var(--gray);
+margin-bottom:25px;
+}
+.actions{
 display:flex;
-border-bottom:2px solid var(--border)
+gap:15px;
+justify-content:center;
+flex-wrap:wrap;
+margin-bottom:25px;
 }
-.tab-button{
+button{
 border:none;
-background:#eee;
-padding:12px 20px;
+padding:14px 25px;
+border-radius:8px;
+font-weight:700;
 cursor:pointer;
-font-weight:600
+color:#fff;
+font-size:1rem;
 }
-.tab-button.active{
-background:#fff;
-color:var(--primary-blue)
-}
-.tab-content{display:none}
-.tab-content.active{display:block}
+.btn-new{background:var(--green)}
+.btn-all{background:var(--blue)}
 
 table{
 width:100%;
 border-collapse:collapse;
-margin-top:20px
 }
 th,td{
 border:1px solid var(--border);
 padding:10px;
-font-size:.9rem
+font-size:.9rem;
 }
 th{background:#f1f3f5}
-
-.new-row{background:#e6fffa;font-weight:600}
-.badge-new{
+.new{
+background:#e6fffa;
+font-weight:600;
+}
+.badge{
 background:var(--green);
 color:#fff;
-padding:4px 8px;
-border-radius:12px;
-font-size:.75rem
+padding:3px 8px;
+border-radius:10px;
+font-size:.75rem;
 }
-
-.action-button{
+.footer{
+text-align:center;
 margin-top:20px;
-padding:14px 25px;
-border:none;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;
-color:#fff;
-display:inline-flex;
-align-items:center;
-gap:8px
+font-size:.85rem;
+color:#666;
 }
-.green{background:var(--green)}
-.blue{background:var(--primary-blue)}
-.whatsapp{background:var(--whatsapp)}
-
-.success{
-background:#d4edda;
-color:#155724;
-padding:10px;
-border-radius:6px;
-margin-top:10px;
-display:none
-}
-.footer{margin:20px;font-size:.85rem;color:#666}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-<h1>Big Quams Connect – Admin</h1>
+<div class="container">
+<h1>Admin VCF Download Panel</h1>
+<p class="note">This panel is for downloading and managing contact VCF files only.</p>
+
+<div class="actions">
+<button class="btn-new" onclick="downloadNew()">⬇ Download NEW Contacts</button>
+<button class="btn-all" onclick="downloadAll()">⬇ Download ALL Contacts</button>
 </div>
 
-<div class="panel">
+<div id="table-area">Loading contacts…</div>
 
-<div class="tabs">
-<button class="tab-button active" data-tab="vcf">VCF Downloads</button>
-<button class="tab-button" data-tab="whatsapp">WhatsApp Contacts</button>
+<div class="footer">CampusConnect NG • Admin Only</div>
 </div>
-
-<div id="vcf" class="tab-content active">
-<h2>Contact List</h2>
-<div id="vcf-table">Loading…</div>
-
-<button class="action-button green" onclick="downloadNewVCF()">
-<i class="fas fa-download"></i> Download New Members
-</button>
-
-<button class="action-button blue" onclick="generateAllBatches()">
-<i class="fas fa-layer-group"></i> Generate All Batches
-</button>
-
-<div id="batch-area"></div>
-</div>
-
-<div id="whatsapp" class="tab-content">
-<h2>WhatsApp Numbers</h2>
-<div id="whatsapp-table">Loading…</div>
-
-<button class="action-button whatsapp" onclick="copyWhatsApp()">
-<i class="fab fa-whatsapp"></i> Copy All Numbers
-</button>
-
-<div id="copy-status" class="success"></div>
-</div>
-
-</div>
-
-<div class="footer">Created with ❤️ by Big Quams</div>
 
 <script>
 const API="https://sheetdb.io/api/v1/lcqbyo961rmzf";
-const TRACK_ROW_ID=2;
+const TRACK_ID=2;
 const TRACK_COL="admin_last_download";
-const BATCH_SIZE=100;
 
 let contacts=[];
-let lastDownloadTime=new Date("2000-01-01");
-
-// Tabs
-document.querySelectorAll(".tab-button").forEach(btn=>{
-btn.onclick=()=>{
-document.querySelectorAll(".tab-button").forEach(b=>b.classList.remove("active"));
-document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
-btn.classList.add("active");
-document.getElementById(btn.dataset.tab).classList.add("active");
-};
-});
+let lastDownload=new Date("2000-01-01");
 
 function normalize(phone){
 let n=phone.replace(/\D/g,"");
-if(n.startsWith("0"))n=n.slice(1);
-if(!n.startsWith("234"))n="234"+n;
+if(n.startsWith("0")) n=n.slice(1);
+if(!n.startsWith("234")) n="234"+n;
 return "+"+n;
 }
 
@@ -191,7 +125,7 @@ return `BEGIN:VCARD
 VERSION:3.0
 FN:${c.name}
 TEL:${normalize(c.phone)}
-NOTE:${c.state||""}
+NOTE:${c.state || ""}
 END:VCARD
 `;
 }
@@ -200,20 +134,19 @@ async function load(){
 const res=await fetch(API);
 const data=await res.json();
 
-const track=data.find(r=>r.id==TRACK_ROW_ID);
+const track=data.find(r=>r.id==TRACK_ID);
 if(track && track[TRACK_COL]){
-lastDownloadTime=new Date(track[TRACK_COL]);
+lastDownload=new Date(track[TRACK_COL]);
 }
 
-contacts=data.filter(r=>r.id!=TRACK_ROW_ID);
-renderVCF();
-renderWhatsApp();
+contacts=data.filter(r=>r.id!=TRACK_ID);
+render();
 }
 load();
 
-function renderVCF(){
-document.getElementById("vcf-table").innerHTML=
-`<table>
+function render(){
+document.getElementById("table-area").innerHTML=`
+<table>
 <tr>
 <th>Status</th>
 <th>Name</th>
@@ -222,10 +155,10 @@ document.getElementById("vcf-table").innerHTML=
 <th>Joined</th>
 </tr>
 ${contacts.map(c=>{
-const isNew=new Date(c.joindate)>lastDownloadTime;
-return`
-<tr class="${isNew?"new-row":""}">
-<td>${isNew?'<span class="badge-new">NEW</span>':'—'}</td>
+const isNew=new Date(c.joindate)>lastDownload;
+return `
+<tr class="${isNew?'new':''}">
+<td>${isNew?'<span class="badge">NEW</span>':'—'}</td>
 <td>${c.name}</td>
 <td>${c.state}</td>
 <td>${c.phone}</td>
@@ -235,66 +168,39 @@ return`
 </table>`;
 }
 
-function renderWhatsApp(){
-document.getElementById("whatsapp-table").innerHTML=
-`<table>
-<tr><th>#</th><th>Name</th><th>Phone</th></tr>
-${contacts.map((c,i)=>`
-<tr>
-<td>${i+1}</td>
-<td>${c.name}</td>
-<td>${normalize(c.phone)}</td>
-</tr>`).join("")}
-</table>`;
+function download(content,filename){
+const blob=new Blob([content],{type:"text/vcard"});
+const a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download=filename;
+a.click();
+URL.revokeObjectURL(a.href);
 }
 
-async function downloadNewVCF(){
-const newContacts=contacts.filter(c=>new Date(c.joindate)>lastDownloadTime);
-if(!newContacts.length){
+async function downloadNew(){
+const fresh=contacts.filter(c=>new Date(c.joindate)>lastDownload);
+if(!fresh.length){
 alert("No new contacts since last download.");
 return;
 }
-download(newContacts.map(vcf).join(""),"NewMembers.vcf");
+download(fresh.map(vcf).join(""),"CampusConnect_NEW.vcf");
 
-await fetch(`${API}/id/${TRACK_ROW_ID}`,{
+await fetch(`${API}/id/${TRACK_ID}`,{
 method:"PUT",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({data:{[TRACK_COL]:new Date().toISOString()}})
 });
 
-alert(`${newContacts.length} new contacts downloaded.`);
+alert(`${fresh.length} new contacts downloaded.`);
 location.reload();
 }
 
-function generateAllBatches(){
-let area=document.getElementById("batch-area");
-area.innerHTML="";
-for(let i=0;i<contacts.length;i+=BATCH_SIZE){
-let chunk=contacts.slice(i,i+BATCH_SIZE);
-let btn=document.createElement("button");
-btn.className="action-button green";
-btn.textContent=`Download Batch ${i/BATCH_SIZE+1}`;
-btn.onclick=()=>download(chunk.map(vcf).join(""),`Batch_${i/BATCH_SIZE+1}.vcf`);
-area.appendChild(btn);
+function downloadAll(){
+if(!contacts.length){
+alert("No contacts available.");
+return;
 }
-}
-
-function download(content,name){
-const blob=new Blob([content],{type:"text/vcard"});
-const a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download=name;
-a.click();
-URL.revokeObjectURL(a.href);
-}
-
-function copyWhatsApp(){
-const nums=contacts.map(c=>normalize(c.phone)).join("\n");
-navigator.clipboard.writeText(nums);
-const s=document.getElementById("copy-status");
-s.textContent="Copied successfully!";
-s.style.display="block";
-setTimeout(()=>s.style.display="none",4000);
+download(contacts.map(vcf).join(""),"CampusConnect_ALL.vcf");
 }
 </script>
 
