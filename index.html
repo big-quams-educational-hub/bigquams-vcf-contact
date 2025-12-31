@@ -7,49 +7,64 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+<!-- Open Graph -->
 <meta property="og:title" content="Join CampusConnect NG - Connect with Students Across Nigeria!" />
 <meta property="og:description" content="Sign up to expand your campus network and connect with students nationwide." />
 <meta property="og:image" content="https://ik.imagekit.io/bigquamsmedia/IMG-20251007-WA0130%20(1).jpg?updatedAt=1760047105931" />
 <meta property="og:type" content="website" />
 
 <style>
-body{
+body {
   font-family:Segoe UI,Roboto,sans-serif;
   background:#f8f9fa;
   margin:0;
   display:flex;
   flex-direction:column;
-  align-items:center
+  align-items:center;
 }
-.cover-picture-container{
+.cover-picture-container {
   width:100%;
   height:180px;
-  background:url('https://ik.imagekit.io/bigquamsmedia/CampusConnect-NG-reduced.jpeg?updatedAt=1759624459929') center/cover no-repeat
+  background:url('https://ik.imagekit.io/bigquamsmedia/CampusConnect-NG-reduced.jpeg?updatedAt=1759624459929') center/cover no-repeat;
 }
-.main-title{
+.main-title {
   margin:20px 0;
   color:#007BFF;
   font-size:2rem;
-  font-weight:700
+  font-weight:700;
 }
-.container{
+.about-section {
+  background:#fff;
+  padding:15px 20px;
+  width:90%;
+  max-width:600px;
+  border-radius:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom:20px;
+  color:#212529;
+  font-size:0.95rem;
+  line-height:1.6;
+}
+.container {
   background:#fff;
   padding:25px;
   width:90%;
   max-width:600px;
   border-radius:12px;
-  box-shadow:0 8px 25px rgba(0,0,0,.12)
+  box-shadow:0 8px 25px rgba(0,0,0,.12);
 }
-label{font-weight:600}
-input,select{
+label {
+  font-weight:600;
+}
+input, select {
   width:100%;
   padding:12px;
   margin-top:6px;
   margin-bottom:15px;
   border-radius:6px;
-  border:1px solid #ced4da
+  border:1px solid #ced4da;
 }
-button{
+button {
   background:#007BFF;
   color:#fff;
   padding:14px;
@@ -58,10 +73,12 @@ button{
   font-size:1rem;
   font-weight:bold;
   width:100%;
-  cursor:pointer
+  cursor:pointer;
 }
-button:hover{background:#0056b3}
-.whatsapp-button{
+button:hover {
+  background:#0056b3;
+}
+.whatsapp-button {
   display:none;
   margin-top:20px;
   background:#25D366;
@@ -70,18 +87,18 @@ button:hover{background:#0056b3}
   padding:14px;
   border-radius:8px;
   font-weight:bold;
-  text-align:center
+  text-align:center;
 }
-.success-message{
+.success-message {
   display:none;
   margin-top:20px;
   background:#d4edda;
   padding:20px;
   border-radius:8px;
   text-align:center;
-  color:#155724
+  color:#155724;
 }
-.warning-message{
+.warning-message {
   background:#f8d7da;
   color:#721c24;
   padding:12px;
@@ -89,20 +106,6 @@ button:hover{background:#0056b3}
   margin-bottom:15px;
   font-weight:600;
   text-align:center;
-  line-height:1.4;
-}
-.about-box{
-  background:#e9f7ff;
-  color:#004085;
-  border-left:5px solid #007BFF;
-  padding:15px 20px;
-  border-radius:8px;
-  margin-bottom:20px;
-  font-size:0.95rem;
-  line-height:1.5;
-}
-.about-box b{
-  color:#007BFF;
 }
 </style>
 </head>
@@ -112,44 +115,49 @@ button:hover{background:#0056b3}
 <div class="cover-picture-container"></div>
 <h1 class="main-title">CampusConnect NG</h1>
 
+<div class="about-section">
+<p>Welcome to <strong>CampusConnect NG</strong> – your platform to connect with undergraduates nationwide. Here you can:</p>
+<ul>
+<li>Meet and network with students from other universities and colleges</li>
+<li>Share vibes, ideas, and opportunities</li>
+<li>Promote your hustle or business for FREE in our WhatsApp group</li>
+<li>Stay informed with school updates and helpful tips</li>
+<li>And much more, exclusively for undergraduates</li>
+</ul>
+</div>
+
 <div class="container">
 
-  <div class="about-box">
-    <b>CampusConnect NG</b> is Nigeria’s premier undergraduate network. Register to: <br>
-    - Connect and engage with students nationwide<br>
-    - Share ideas, opportunities, and campus vibes<br>
-    - Promote your hustle or business for free in our WhatsApp group<br>
-    - Stay updated with school news, tips, and resources<br>
-    - Enjoy more exclusive benefits tailored for undergraduates
-  </div>
+<div class="warning-message">
+⚠️ Submit only once. Duplicate entries are blocked.
+</div>
 
-  <div class="warning-message" id="warning-message">
-    ⚠️ Submit only once. Duplicate entries are blocked.
-  </div>
+<form id="contact-form">
+<label>Name</label>
+<input type="text" name="name" required>
 
-  <form id="contact-form">
-    <label>Name</label>
-    <input type="text" name="name" required>
+<label>State</label>
+<select name="state" id="state" required></select>
 
-    <label>State</label>
-    <select name="state" id="state" required></select>
+<label>Tertiary Institution</label>
+<input type="text" name="institution" placeholder="Enter your university/college" required>
 
-    <label>Phone Number</label>
-    <input type="tel" name="phone" placeholder="08012345678" required>
+<label>Phone Number</label>
+<input type="tel" name="phone" placeholder="08012345678" required>
 
-    <input type="hidden" name="membertype" value="New">
+<input type="hidden" name="membertype" value="New">
 
-    <button type="submit">Submit</button>
-  </form>
+<button type="submit">Submit</button>
+</form>
 
-  <div class="success-message" id="success-message">
-    <p>✅ Submission successful!</p>
-    <p>Redirecting you to WhatsApp...</p>
-  </div>
+<div class="success-message" id="success-message">
+<p>✅ Submission successful!</p>
+<p>Redirecting you to WhatsApp...</p>
+</div>
 
-  <a id="whatsappBtn" class="whatsapp-button" href="https://chat.whatsapp.com/Hiu0e5OTvUIIk6Rq3ndsUA" target="_blank">
-    <i class="fab fa-whatsapp"></i> Join WhatsApp Group
-  </a>
+<a id="whatsappBtn" class="whatsapp-button" href="https://chat.whatsapp.com/Hiu0e5OTvUIIk6Rq3ndsUA" target="_blank">
+<i class="fab fa-whatsapp"></i> Join WhatsApp Group
+</a>
 
 </div>
 
@@ -159,53 +167,52 @@ const WHATSAPP_URL = "https://chat.whatsapp.com/Hiu0e5OTvUIIk6Rq3ndsUA";
 const form = document.getElementById("contact-form");
 const successBox = document.getElementById("success-message");
 const whatsappBtn = document.getElementById("whatsappBtn");
-const warningBox = document.getElementById("warning-message");
 
-const states=[
-  "Abia","Adamawa","Akwa Ibom","Anambra","FCT Abuja","Bauchi","Bayelsa","Benue","Borno",
-  "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","Gombe","Imo","Jigawa","Kaduna",
-  "Kano","Katsina","Kebbi","Kogi","Kwara","Lagos","Nasarawa","Niger","Ogun","Ondo",
-  "Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara"
+const states = [
+"Abia","Adamawa","Akwa Ibom","Anambra","FCT Abuja","Bauchi","Bayelsa","Benue","Borno",
+"Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","Gombe","Imo","Jigawa","Kaduna",
+"Kano","Katsina","Kebbi","Kogi","Kwara","Lagos","Nasarawa","Niger","Ogun","Ondo",
+"Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara"
 ].sort();
 
-const stateSelect=document.getElementById("state");
-states.forEach(s=>{
-  const o=document.createElement("option");
-  o.value=s;o.textContent=s;
+const stateSelect = document.getElementById("state");
+states.forEach(s => {
+  const o = document.createElement("option");
+  o.value = s; o.textContent = s;
   stateSelect.appendChild(o);
 });
 
 // DEVICE LOCK
 if(localStorage.getItem("campusconnect_submitted")){
   form.style.display="none";
-  warningBox.innerHTML = `❌ You have already submitted from this device. For any issues, please contact <b>CampusConnect NG Admin</b> via WhatsApp: <a href="https://wa.me/2349169374257" target="_blank">Message Admin</a>.`;
+  document.querySelector(".warning-message").innerHTML="❌ You have already submitted from this device. Please contact CampusConnect NG admin directly for assistance.";
 }
 
 function normalizePhone(num){
-  let n=num.replace(/\D/g,"");
-  if(n.startsWith("0")) n=n.slice(1);
-  if(n.startsWith("234")) n=n.slice(3);
-  return n.length===10?"+234"+n:null;
+  let n = num.replace(/\D/g,"");
+  if(n.startsWith("0")) n = n.slice(1);
+  if(n.startsWith("234")) n = n.slice(3);
+  return n.length===10 ? "+234"+n : null;
 }
 
-form.addEventListener("submit",async e=>{
+form.addEventListener("submit", async e=>{
   e.preventDefault();
 
-  let data=Object.fromEntries(new FormData(form));
-  const phone=normalizePhone(data.phone);
+  let data = Object.fromEntries(new FormData(form));
+  const phone = normalizePhone(data.phone);
 
   if(!phone){
     alert("Invalid Nigerian phone number");
     return;
   }
 
-  data.phone=phone;
-  data.joindate=new Date().toISOString().slice(0,19).replace("T"," ");
+  data.phone = phone;
+  data.joindate = new Date().toISOString().slice(0,19).replace("T"," ");
 
   // DUPLICATE CHECK
-  const check=await fetch(`${FORM_API_URL}/search?phone=${phone}`);
-  const existing=await check.json();
-  if(existing.length>0){
+  const check = await fetch(`${FORM_API_URL}/search?phone=${phone}`);
+  const existing = await check.json();
+  if(existing.length > 0){
     alert("This phone number has already been registered.");
     return;
   }
