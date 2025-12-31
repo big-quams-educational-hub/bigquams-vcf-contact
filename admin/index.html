@@ -1,751 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Big Quams Connect - Admin Panel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Font Awesome CDN for Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    /* CSS Styles (mostly unchanged, with additions for icons/logo) */
-    :root {
-      --primary-blue: #007BFF; /* Main Blue for buttons, headings */
-      --secondary-orange: #FF8C00; /* Accent Orange for highlights */
-      --tertiary-green: #28A745; /* Green for success messages, WhatsApp links */
-      --white-bg: #FFFFFF; /* Clean white for card backgrounds */
-      --light-gray-bg: #F8F9FA; /* Very light gray for body background */
-      
-      --text-color-dark: #212529; /* Dark text for readability */
-      --text-color-light: #6C757D; /* Lighter text for descriptions/small print */
-      --border-color: #CED4DA; /* Subtle border for inputs */
-      
-      --shadow-light: rgba(0,0,0,0.08);
-      --shadow-medium: rgba(0,0,0,0.12);
-      
-      --info-bg: #FFF3CD; /* Light yellow for info box */
-      --info-border: #FFECB5;
-      --info-text: #856404;
-      --info-strong: #6a5301;
+<meta charset="UTF-8">
+<title>Big Quams Connect – Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-      --success-bg: #D4EDDA; /* Lighter green for success message */
-      --success-border: #C3E6CB;
-      --success-text: #155724;
-      
-      --whatsapp-link-color: var(--tertiary-green);
-      --whatsapp-color: #25D366; /* WhatsApp brand green */
-      --whatsapp-dark-color: #1DA851; /* Darker green for hover */
-    }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    body {
-      font-family: 'Segoe UI', 'Roboto', sans-serif;
-      background: var(--light-gray-bg);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column; /* Allow content and footer to stack */
-      align-items: center; /* Center horizontally */
-      min-height: 100vh;
-      color: var(--text-color-dark);
-      line-height: 1.6;
-    }
+<style>
+:root{
+--primary-blue:#007BFF;
+--green:#28A745;
+--light:#F8F9FA;
+--border:#CED4DA;
+--shadow:rgba(0,0,0,.12);
+--whatsapp:#25D366
+}
+body{
+margin:0;
+font-family:Segoe UI,Roboto,sans-serif;
+background:var(--light);
+display:flex;
+flex-direction:column;
+align-items:center
+}
+.header{
+width:100%;
+height:120px;
+background:url('https://ik.imagekit.io/bigquamsmedia/GeneratedImageOctober042025-8_05P.jpeg?updatedAt=1759625291715') center/cover no-repeat;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#fff;
+position:relative
+}
+.header::after{
+content:"";
+position:absolute;
+inset:0;
+background:rgba(0,0,0,.55)
+}
+.header h1{z-index:1}
+.panel{
+background:#fff;
+width:90%;
+max-width:1000px;
+padding:30px;
+margin:30px 0;
+border-radius:12px;
+box-shadow:0 8px 25px var(--shadow)
+}
+.tabs{
+display:flex;
+border-bottom:2px solid var(--border)
+}
+.tab-button{
+border:none;
+background:#eee;
+padding:12px 20px;
+cursor:pointer;
+font-weight:600
+}
+.tab-button.active{
+background:#fff;
+color:var(--primary-blue)
+}
+.tab-content{display:none}
+.tab-content.active{display:block}
 
-    .header {
-        width: 100%;
-        background-color: var(--primary-blue);
-        color: var(--white-bg);
-        padding: 15px 0;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 30px;
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        position: relative; /* Needed for absolute positioning of background image */
-        overflow: hidden; /* Hide parts of the image that exceed header bounds */
-        min-height: 120px; /* Give some height for the background image */
-    }
-    .header::before { /* Pseudo-element for the background image */
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url('https://ik.imagekit.io/bigquamsmedia/GeneratedImageOctober042025-8_05P.jpeg?updatedAt=1759625291715'); /* Your provided image URL */
-        background-size: cover; /* Cover the entire header area */
-        background-position: center; /* Center the image */
-        filter: brightness(0.5); /* Darken the image to make text more readable */
-        z-index: 1; /* Place behind text */
-    }
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px
+}
+th,td{
+border:1px solid var(--border);
+padding:10px;
+font-size:.9rem
+}
+th{background:#f1f3f5}
 
-    .header-content { /* Wrapper for header text to ensure it's above the background */
-        position: relative;
-        z-index: 2; /* Place above the pseudo-element background */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%; /* Ensure content takes full height of header */
-    }
+.new-row{background:#e6fffa;font-weight:600}
+.badge-new{
+background:var(--green);
+color:#fff;
+padding:4px 8px;
+border-radius:12px;
+font-size:.75rem
+}
 
-    .header h1 {
-        margin: 0;
-        font-size: 1.8rem;
-        font-weight: 700;
-        /* No margin-left needed if logo is removed, or adjust if you add a different logo */
-    }
-    .header .logo { /* Kept for reference, but removed from HTML */
-        display: none; /* Hide the logo as it's now a background */
-    }
+.action-button{
+margin-top:20px;
+padding:14px 25px;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+color:#fff;
+display:inline-flex;
+align-items:center;
+gap:8px
+}
+.green{background:var(--green)}
+.blue{background:var(--primary-blue)}
+.whatsapp{background:var(--whatsapp)}
 
-
-    .panel {
-      max-width: 900px; /* Wider panel for table data */
-      width: 90%;
-      margin: 30px auto; /* Adjust margin for header and footer */
-      background: var(--white-bg);
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px var(--shadow-medium);
-      flex-grow: 1; /* Allow panel to take up available space */
-    }
-
-    h2 {
-      text-align: center;
-      color: var(--primary-blue);
-      font-size: 1.8rem;
-      margin-bottom: 25px;
-      font-weight: 700;
-    }
-
-    /* Tabs Styling */
-    .tabs {
-        display: flex;
-        margin-bottom: 20px;
-        border-bottom: 2px solid var(--border-color);
-    }
-    .tab-button {
-        background-color: var(--light-gray-bg);
-        border: none;
-        padding: 10px 20px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--text-color-light);
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-        transition: background-color 0.3s ease, color 0.3s ease;
-        margin-right: 5px; /* Space between tabs */
-        border: 1px solid transparent;
-        border-bottom: none;
-    }
-    .tab-button:hover {
-        background-color: #E9ECEF;
-        color: var(--text-color-dark);
-    }
-    .tab-button.active {
-        background-color: var(--white-bg);
-        color: var(--primary-blue);
-        border: 1px solid var(--border-color);
-        border-bottom: 2px solid var(--white-bg); /* Overlay bottom border */
-        margin-bottom: -2px; /* Pull it slightly over the border */
-        box-shadow: 0 -2px 8px var(--shadow-light);
-    }
-
-    .tab-content {
-        display: none; /* Hide all tab content by default */
-        padding-top: 20px;
-    }
-    .tab-content.active {
-        display: block; /* Show active tab content */
-    }
-
-
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-      background-color: var(--white-bg); /* Ensure table background is white */
-      border-radius: 8px; /* Rounded corners for the table itself */
-      overflow: hidden; /* Ensures rounded corners apply to content */
-    }
-
-    table th, table td {
-      border: 1px solid var(--border-color);
-      padding: 12px 15px;
-      font-size: 0.95rem;
-      text-align: left;
-      color: var(--text-color-dark);
-    }
-    table th {
-        background-color: var(--light-gray-bg); /* Lighter header for table */
-        font-weight: 600;
-        color: var(--primary-blue);
-    }
-    table tr:nth-child(even) {
-        background-color: #fcfdfe; /* Subtle stripe for readability */
-    }
-    
-    .button-group {
-        display: flex;
-        flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-        justify-content: center;
-        gap: 20px; /* Space between buttons */
-        margin-top: 30px;
-    }
-
-    .action-button { /* General style for action buttons */
-      width: fit-content; 
-      min-width: 200px;
-      padding: 15px 30px;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-      text-decoration: none; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-    }
-    .action-button i { 
-        margin-right: 8px; 
-    }
-
-    .action-button.green { /* Style for VCF buttons */
-        background-color: var(--tertiary-green); 
-        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2); 
-    }
-    .action-button.green:hover {
-        background-color: #218838; 
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
-    }
-    .action-button.green:active {
-        background-color: #218838;
-        transform: translateY(0);
-        box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
-    }
-
-    .action-button.blue { /* Style for primary actions, e.g., "Copy All Contacts" */
-        background-color: var(--primary-blue);
-        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
-    }
-    .action-button.blue:hover {
-        background-color: #0056b3;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
-    }
-    .action-button.blue:active {
-        background-color: #004085;
-        transform: translateY(0);
-        box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
-    }
-
-    .action-button.whatsapp-color { /* Style specifically for WhatsApp copy */
-        background-color: var(--whatsapp-color);
-        box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2);
-    }
-    .action-button.whatsapp-color:hover {
-        background-color: var(--whatsapp-dark-color);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(37, 211, 102, 0.3);
-    }
-    .action-button.whatsapp-color:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 5px rgba(37, 211, 102, 0.2);
-    }
-    
-    .data-load-message {
-        text-align: center;
-        font-size: 1.1rem;
-        color: var(--text-color-light);
-        padding: 20px;
-    }
-
-    .copy-status-message {
-        margin-top: 15px;
-        text-align: center;
-        font-size: 0.95rem;
-        color: var(--success-text);
-        background-color: var(--success-bg);
-        border: 1px solid var(--success-border);
-        padding: 10px;
-        border-radius: 5px;
-        display: none; /* Hidden by default */
-    }
-
-    .vcf-batch-container {
-        margin-top: 20px;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 15px;
-        background-color: var(--light-gray-bg);
-    }
-
-    .vcf-batch-container h3 {
-        color: var(--primary-blue);
-        margin-top: 0;
-        margin-bottom: 15px;
-        font-size: 1.3rem;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 10px;
-    }
-
-    .vcf-batch-container .button-group {
-        justify-content: flex-start; /* Align buttons to the left */
-        margin-top: 10px;
-        gap: 10px; /* Smaller gap for batch buttons */
-    }
-
-    .footer-love {
-        text-align: center;
-        font-size: 0.85rem;
-        color: var(--text-color-light);
-        margin-top: 30px;
-        padding-bottom: 15px;
-        width: 100%;
-    }
-    .footer-love a {
-        color: var(--primary-blue);
-        text-decoration: none;
-        font-weight: 500;
-    }
-
-    @media (max-width: 768px) {
-        .panel {
-            padding: 20px;
-        }
-        h2 {
-            font-size: 1.5rem;
-        }
-        table th, table td {
-            padding: 8px 10px;
-            font-size: 0.85rem;
-        }
-        .action-button {
-            min-width: unset;
-            width: 100%;
-            padding: 12px 20px;
-            font-size: 1rem;
-        }
-        .button-group {
-            flex-direction: column;
-            gap: 15px;
-        }
-        .tab-button {
-            padding: 8px 15px;
-            font-size: 0.9rem;
-        }
-        .vcf-batch-container .button-group {
-             flex-direction: column; /* Stack batch buttons on small screens */
-             align-items: flex-start; /* Align stacked buttons to the left */
-        }
-        .vcf-batch-container .action-button {
-            width: fit-content; /* Make batch buttons naturally sized */
-        }
-    }
-  </style>
+.success{
+background:#d4edda;
+color:#155724;
+padding:10px;
+border-radius:6px;
+margin-top:10px;
+display:none
+}
+.footer{margin:20px;font-size:.85rem;color:#666}
+</style>
 </head>
+
 <body>
-  <div class="header">
-      <div class="header-content">
-          <h1>Big Quams Connect Admin</h1>
-      </div>
-  </div>
 
-  <div class="panel" id="admin-panel">
-    
-    <div class="tabs">
-        <button class="tab-button active" onclick="openTab(event, 'vcf-downloads')">VCF Downloads</button>
-        <button class="tab-button" onclick="openTab(event, 'whatsapp-contacts')">WhatsApp Contacts</button>
-    </div>
+<div class="header">
+<h1>Big Quams Connect – Admin</h1>
+</div>
 
-    <div id="vcf-downloads" class="tab-content active">
-        <h2>VCF Contact List & Downloads</h2>
-        <div id="data-table" class="data-load-message">Loading contacts...</div>
-        
-        <div class="button-group">
-            <button class="action-button green" onclick="downloadNewMembersVCF()"><i class="fas fa-arrow-down"></i> Download New Members (since last download)</button>
-            <button class="action-button blue" onclick="generateAllMembersVCFBatches()"><i class="fas fa-download"></i> Generate All Members VCF Batches</button>
-        </div>
+<div class="panel">
 
-        <div id="vcf-batch-downloads-container">
-            <!-- VCF batch download links will be dynamically inserted here -->
-        </div>
-    </div>
+<div class="tabs">
+<button class="tab-button active" data-tab="vcf">VCF Downloads</button>
+<button class="tab-button" data-tab="whatsapp">WhatsApp Contacts</button>
+</div>
 
-    <div id="whatsapp-contacts" class="tab-content">
-        <h2>WhatsApp Contact List</h2>
-        <div id="whatsapp-contacts-table" class="data-load-message">Loading WhatsApp contacts...</div>
-        
-        <div class="button-group">
-            <button class="action-button whatsapp-color" onclick="copyAllWhatsAppNumbers()"><i class="fab fa-whatsapp"></i> Copy All WhatsApp Numbers</button>
-        </div>
-        <div id="copy-status" class="copy-status-message"></div>
-    </div>
-    
-  </div>
+<div id="vcf" class="tab-content active">
+<h2>Contact List</h2>
+<div id="vcf-table">Loading…</div>
 
-  <div class="footer-love">
-      Created with ❤️ by <a href="#" target="_blank">Big Quams</a>
-  </div>
+<button class="action-button green" onclick="downloadNewVCF()">
+<i class="fas fa-download"></i> Download New Members
+</button>
 
-  <script>
-    const API_URL = "https://sheetdb.io/api/v1/lcqbyo961rmzf"; // <--- UPDATED API URL HERE!
+<button class="action-button blue" onclick="generateAllBatches()">
+<i class="fas fa-layer-group"></i> Generate All Batches
+</button>
 
-    const CONTACTS_PER_BATCH = 100; // Define how many contacts per VCF file batch
+<div id="batch-area"></div>
+</div>
 
-    // --- CONFIGURATION FOR ADMIN LAST DOWNLOAD DATE ---
-    // IMPORTANT: This must exactly match the header of the column you added in Google Sheet for tracking
-    const LAST_DOWNLOAD_MARKER_COLUMN = "admin_last_download"; 
-    // IMPORTANT: This must match the row number in your Google Sheet where the marker is stored.
-    // If it's in the first data row (below headers), it's 2.
-    const TRACKING_ROW_ID = 2; 
+<div id="whatsapp" class="tab-content">
+<h2>WhatsApp Numbers</h2>
+<div id="whatsapp-table">Loading…</div>
 
-    // Global variable to store fetched data for use across tabs
-    let allContactsData = [];
+<button class="action-button whatsapp" onclick="copyWhatsApp()">
+<i class="fab fa-whatsapp"></i> Copy All Numbers
+</button>
 
-    // Utility function to create and trigger VCF download
-    const triggerDownload = (content, filename) => {
-        if (content) {
-            const blob = new Blob([content], { type: "text/vcard;charset=utf-8" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-            console.log(`Downloaded: ${filename}`);
-        } else {
-            console.log(`No content for: ${filename}`);
-        }
-    };
+<div id="copy-status" class="success"></div>
+</div>
 
-    // --- Generate VCF Content for a single contact ---
-    function generateVCFContent(contact) {
-        if (!contact || !contact.name || !contact.phone) {
-            return ''; // Skip if essential data is missing
-        }
+</div>
 
-        const name = contact.name.trim();
-        const phone = contact.phone.trim().replace(/\D/g, ''); // Remove non-digits
-        const state = contact.state ? contact.state.trim() : '';
+<div class="footer">Created with ❤️ by Big Quams</div>
 
-        let vcf = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
-        vcf += `FN:${name}\r\n`;
-        vcf += `N:${name};;;\r\n`; // Family Name; Given Name; Middle Names; Prefix; Suffix
-        vcf += `TEL;TYPE=CELL:${phone}\r\n`;
-        if (state) {
-            vcf += `NOTE:State: ${state}\r\n`;
-        }
-        vcf += `END:VCARD\r\n`;
-        return vcf;
-    }
+<script>
+const API="https://sheetdb.io/api/v1/lcqbyo961rmzf";
+const TRACK_ROW_ID=2;
+const TRACK_COL="admin_last_download";
+const BATCH_SIZE=100;
 
-    // --- Tab Switching Logic ---
-    function openTab(evt, tabName) {
-        var i, tabcontent, tabbuttons;
-        tabcontent = document.getElementsByClassName("tab-content");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
-        tabbuttons = document.getElementsByClassName("tab-button");
-        for (i = 0; i < tabbuttons.length; i++) {
-            tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
-        }
-        document.getElementById(tabName).style.display = "block";
-        evt.currentTarget.className += " active";
+let contacts=[];
+let lastDownloadTime=new Date("2000-01-01");
 
-        // Refresh data when switching to WhatsApp tab
-        if (tabName === 'whatsapp-contacts') {
-            displayWhatsAppContacts(allContactsData);
-        } else if (tabName === 'vcf-downloads') {
-            displayVCFTable(allContactsData);
-            // Re-render batch buttons if the tab is opened
-            if (document.getElementById('vcf-batch-downloads-container').innerHTML !== '') {
-                // If batches were already generated, don't clear them
-            } else {
-                document.getElementById('vcf-batch-downloads-container').innerHTML = ''; // Clear if not generated
-            }
-        }
-    }
+// Tabs
+document.querySelectorAll(".tab-button").forEach(btn=>{
+btn.onclick=()=>{
+document.querySelectorAll(".tab-button").forEach(b=>b.classList.remove("active"));
+document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+btn.classList.add("active");
+document.getElementById(btn.dataset.tab).classList.add("active");
+};
+});
 
-    // --- FETCH ALL DATA AND INITIAL DISPLAY ---
-    async function fetchAllDataAndDisplay() {
-        console.log("Attempting to fetch data from:", API_URL); // Debugging log
-        try {
-            const response = await fetch(API_URL);
-            console.log("API Response received:", response); // Debugging log
+function normalize(phone){
+let n=phone.replace(/\D/g,"");
+if(n.startsWith("0"))n=n.slice(1);
+if(!n.startsWith("234"))n="234"+n;
+return "+"+n;
+}
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const rawData = await response.json();
-            console.log("Raw data from API:", rawData); // Debugging log
-            
-            // Filter out the tracking row from the contacts array
-            allContactsData = rawData.filter(entry => 
-                !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
-            );
-            console.log("Filtered contacts data:", allContactsData); // Debugging log
-            
-            if (!allContactsData || allContactsData.length === 0) {
-                document.getElementById("data-table").innerHTML = "<p class='data-load-message'>No contacts found.</p>";
-                document.getElementById("whatsapp-contacts-table").innerHTML = "<p class='data-load-message'>No WhatsApp contacts found.</p>";
-                console.log("No contacts found after filtering or raw data was empty."); // Debugging log
-                return;
-            }
+function vcf(c){
+return `BEGIN:VCARD
+VERSION:3.0
+FN:${c.name}
+TEL:${normalize(c.phone)}
+NOTE:${c.state||""}
+END:VCARD
+`;
+}
 
-            // Display initially active tab content
-            const activeTabButton = document.querySelector('.tab-button.active');
-            if (activeTabButton && activeTabButton.id === 'whatsapp-contacts-tab') { // Assuming you might give IDs to buttons
-                displayWhatsAppContacts(allContactsData);
-            } else { // Default to VCF Downloads tab
-                displayVCFTable(allContactsData);
-            }
+async function load(){
+const res=await fetch(API);
+const data=await res.json();
 
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            document.getElementById("data-table").innerHTML = "<p class='data-load-message'>Failed to load data. Please try again later.</p>";
-            document.getElementById("whatsapp-contacts-table").innerHTML = "<p class='data-load-message'>Failed to load data. Please try again later.</p>";
-        }
-    }
+const track=data.find(r=>r.id==TRACK_ROW_ID);
+if(track && track[TRACK_COL]){
+lastDownloadTime=new Date(track[TRACK_COL]);
+}
 
-    // --- Display function for VCF Downloads Tab ---
-    function displayVCFTable(data) {
-        const dataTableDiv = document.getElementById("data-table");
-        if (!data || data.length === 0) {
-            dataTableDiv.innerHTML = "<p class='data-load-message'>No contacts found.</p>";
-            return;
-        }
+contacts=data.filter(r=>r.id!=TRACK_ROW_ID);
+renderVCF();
+renderWhatsApp();
+}
+load();
 
-        let tableHtml = `<table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>State</th>
-                                <th>Phone</th>
-                                <th>Member Type</th>
-                                <th>Join Date</th>
-                                <th>Admin Last Download</th> 
-                            </tr>
-                        </thead>
-                        <tbody>`;
-        data.forEach(entry => {
-            const name = entry.name || 'N/A';
-            const state = entry.state || 'N/A';
-            const phone = entry.phone || 'N/A';
-            const memberType = entry.membertype || 'N/A';
-            const joinDate = entry.joindate || 'N/A';
-            // Note: LAST_DOWNLOAD_MARKER_COLUMN is for the tracking row, not individual contacts
-            // This column will likely be empty for actual contact rows unless you have it in your sheet.
-            const lastDownload = entry[LAST_DOWNLOAD_MARKER_COLUMN] || 'N/A'; 
+function renderVCF(){
+document.getElementById("vcf-table").innerHTML=
+`<table>
+<tr>
+<th>Status</th>
+<th>Name</th>
+<th>State</th>
+<th>Phone</th>
+<th>Joined</th>
+</tr>
+${contacts.map(c=>{
+const isNew=new Date(c.joindate)>lastDownloadTime;
+return`
+<tr class="${isNew?"new-row":""}">
+<td>${isNew?'<span class="badge-new">NEW</span>':'—'}</td>
+<td>${c.name}</td>
+<td>${c.state}</td>
+<td>${c.phone}</td>
+<td>${new Date(c.joindate).toLocaleString()}</td>
+</tr>`;
+}).join("")}
+</table>`;
+}
 
-            tableHtml += `<tr>
-                            <td>${name}</td>
-                            <td>${state}</td>
-                            <td>${phone}</td>
-                            <td>${memberType}</td>
-                            <td>${joinDate}</td>
-                            <td>${lastDownload}</td>
-                        </tr>`;
-        });
-        tableHtml += `</tbody></table>`;
-        dataTableDiv.innerHTML = tableHtml;
-    }
+function renderWhatsApp(){
+document.getElementById("whatsapp-table").innerHTML=
+`<table>
+<tr><th>#</th><th>Name</th><th>Phone</th></tr>
+${contacts.map((c,i)=>`
+<tr>
+<td>${i+1}</td>
+<td>${c.name}</td>
+<td>${normalize(c.phone)}</td>
+</tr>`).join("")}
+</table>`;
+}
 
-    // --- Display function for WhatsApp Contacts Tab ---
-    function displayWhatsAppContacts(data) {
-        const whatsappTableDiv = document.getElementById("whatsapp-contacts-table");
-        if (!data || data.length === 0) {
-            whatsappTableDiv.innerHTML = "<p class='data-load-message'>No WhatsApp contacts found.</p>";
-            return;
-        }
+async function downloadNewVCF(){
+const newContacts=contacts.filter(c=>new Date(c.joindate)>lastDownloadTime);
+if(!newContacts.length){
+alert("No new contacts since last download.");
+return;
+}
+download(newContacts.map(vcf).join(""),"NewMembers.vcf");
 
-        let tableHtml = `<table>
-                            <thead>
-                                <tr>
-                                    <th>S/N</th>
-                                    <th>Name</th>
-                                    <th>Phone Number</th>
-                                    <th>State</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
-        data.forEach((entry, index) => {
-            const name = entry.name || 'N/A';
-            const phone = entry.phone || 'N/A';
-            const state = entry.state || 'N/A';
+await fetch(`${API}/id/${TRACK_ROW_ID}`,{
+method:"PUT",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({data:{[TRACK_COL]:new Date().toISOString()}})
+});
 
-            tableHtml += `<tr>
-                            <td>${index + 1}</td>
-                            <td>${name}</td>
-                            <td>${phone}</td>
-                            <td>${state}</td>
-                          </tr>`;
-        });
-        tableHtml += `</tbody></table>`;
-        whatsappTableDiv.innerHTML = tableHtml;
-    }
+alert(`${newContacts.length} new contacts downloaded.`);
+location.reload();
+}
 
-    // --- DOWNLOAD NEW MEMBERS (SINCE LAST ADMIN DOWNLOAD) VCF ---
-    async function downloadNewMembersVCF() {
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
+function generateAllBatches(){
+let area=document.getElementById("batch-area");
+area.innerHTML="";
+for(let i=0;i<contacts.length;i+=BATCH_SIZE){
+let chunk=contacts.slice(i,i+BATCH_SIZE);
+let btn=document.createElement("button");
+btn.className="action-button green";
+btn.textContent=`Download Batch ${i/BATCH_SIZE+1}`;
+btn.onclick=()=>download(chunk.map(vcf).join(""),`Batch_${i/BATCH_SIZE+1}.vcf`);
+area.appendChild(btn);
+}
+}
 
-            // Find the tracking row
-            const trackingEntry = data.find(row => row.id == TRACKING_ROW_ID); 
-            let lastDownloadTimestamp = null;
+function download(content,name){
+const blob=new Blob([content],{type:"text/vcard"});
+const a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download=name;
+a.click();
+URL.revokeObjectURL(a.href);
+}
 
-            if (trackingEntry && trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]) {
-                lastDownloadTimestamp = new Date(trackingEntry[LAST_DOWNLOAD_MARKER_COLUMN]);
-                if (isNaN(lastDownloadTimestamp.getTime())) {
-                    lastDownloadTimestamp = null; 
-                }
-            }
-            
-            const filterCutoffDate = lastDownloadTimestamp || new Date('2000-01-01T00:00:00Z'); 
+function copyWhatsApp(){
+const nums=contacts.map(c=>normalize(c.phone)).join("\n");
+navigator.clipboard.writeText(nums);
+const s=document.getElementById("copy-status");
+s.textContent="Copied successfully!";
+s.style.display="block";
+setTimeout(()=>s.style.display="none",4000);
+}
+</script>
 
-            let newMembersVCFContent = "";
-            let newMembersCount = 0;
-            const currentDownloadTimestamp = new Date().toISOString(); 
-
-            // Filter out the tracking row from the contact processing
-            const actualContacts = data.filter(entry => 
-                !(entry.id == TRACKING_ROW_ID && entry[LAST_DOWNLOAD_MARKER_COLUMN])
-            );
-            
-            actualContacts.forEach(contact => {
-                const joinDate = new Date(contact.joindate); // Assuming joindate exists
-                if (!isNaN(joinDate.getTime()) && joinDate > filterCutoffDate) {
-                    newMembersVCFContent += generateVCFContent(contact);
-                    newMembersCount++;
-                }
-            });
-
-            if (newMembersCount > 0) {
-                const formattedDate = new Date().toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
-                const filename = `CampusConnect_NewMembers_${formattedDate}.vcf`;
-                triggerDownload(newMembersVCFContent, filename);
-                alert(`${newMembersCount} new contacts downloaded in ${filename}!`);
-                
-                // Update the last download marker in SheetDB
-                await fetch(`${API_URL}/id/${TRACKING_ROW_ID}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        data: {
-                            [LAST_DOWNLOAD_MARKER_COLUMN]: currentDownloadTimestamp
-                        }
-                    })
-                });
-                console.log("Updated last download marker in SheetDB.");
-
-            } else {
-                alert("No new members found since the last download.");
-            }
-
-        } catch (error) {
-            console.error("Error downloading new members VCF:", error);
-            alert("Failed to download new members VCF. Please check the console for details.");
-        }
-    }
-
-    // --- GENERATE ALL MEMBERS VCF BATCHES ---
-    function generateAllMembersVCFBatches() {
-        const batchContainer = document.getElementById('vcf-batch-downloads-container');
-        batchContainer.innerHTML = ''; // Clear previous batches
-
-        if (!allContactsData || allContactsData.length === 0) {
-            batchContainer.innerHTML = "<p class='data-load-message'>No contacts available to generate batches.</p>";
-            return;
-        }
-
-        const totalBatches = Math.ceil(allContactsData.length / CONTACTS_PER_BATCH);
-        const now = new Date();
-        const folderDate = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
-        const folderTime = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
-        const folderName = `CampusConnect NG files - ${folderDate}_${folderTime}`;
-
-        let batchHtml = `<div class="vcf-batch-container">
-                            <h3><i class="fas fa-folder"></i> ${folderName}</h3>
-                            <div class="button-group">`;
-
-        for (let i = 0; i < totalBatches; i++) {
-            const start = i * CONTACTS_PER_BATCH;
-            const end = Math.min((i + 1) * CONTACTS_PER_BATCH, allContactsData.length);
-            const batchContacts = allContactsData.slice(start, end);
-
-            let vcfContent = "";
-            batchContacts.forEach(contact => {
-                vcfContent += generateVCFContent(contact);
-            });
-
-            const batchNumber = String(i + 1).padStart(2, '0');
-            const filename = `CampusConnect_NG_Batch_${batchNumber}_${folderDate}_${folderTime}.vcf`;
-
-            // Create a temporary blob URL for the VCF content
-            const blob = new Blob([vcfContent], { type: "text/vcard;charset=utf-8" });
-            const blobUrl = URL.createObjectURL(blob);
-
-            batchHtml += `<a href="${blobUrl}" download="${filename}" class="action-button green">
-                            <i class="fas fa-file-download"></i> Download Batch ${i + 1} (${batchContacts.length} contacts)
-                          </a>`;
-        }
-        batchHtml += `</div></div>`;
-        batchContainer.innerHTML = batchHtml;
-        alert(`${totalBatches} VCF batches generated for download.`);
-    }
-
-
-    // --- COPY ALL WHATSAPP NUMBERS ---
-    function copyAllWhatsAppNumbers() {
-        const whatsappNumbers = allContactsData
-            .map(entry => entry.phone)
-            .filter(phone => phone) // Filter out null/empty phones
-            .join('\n'); // Join with newline for easy pasting
-
-        const copyStatusDiv = document.getElementById('copy-status');
-
-        if (whatsappNumbers) {
-            navigator.clipboard.writeText(whatsappNumbers)
-                .then(() => {
-                    copyStatusDiv.innerText = `Successfully copied ${allContactsData.length} WhatsApp numbers!`;
-                    copyStatusDiv.style.display = 'block';
-                    copyStatusDiv.style.backgroundColor = 'var(--success-bg)';
-                    copyStatusDiv.style.color = 'var(--success-text)';
-                    setTimeout(() => copyStatusDiv.style.display = 'none', 5000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy WhatsApp numbers: ', err);
-                    copyStatusDiv.innerText = 'Failed to copy WhatsApp numbers. Please try again.';
-                    copyStatusDiv.style.display = 'block';
-                    copyStatusDiv.backgroundColor = '#f8d7da'; /* Bootstrap danger light */
-                    copyStatusDiv.color = '#721c24'; /* Bootstrap danger dark */
-                    setTimeout(() => copyStatusDiv.style.display = 'none', 5000);
-                });
-        } else {
-            copyStatusDiv.innerText = 'No WhatsApp numbers available to copy.';
-            copyStatusDiv.style.display = 'block';
-            copyStatusDiv.backgroundColor = 'var(--info-bg)';
-            copyStatusDiv.color = 'var(--info-text)';
-            setTimeout(() => copyStatusDiv.style.display = 'none', 5000);
-        }
-    }
-
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', fetchAllDataAndDisplay);
-  </script>
 </body>
 </html>
