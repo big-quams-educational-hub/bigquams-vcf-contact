@@ -14,12 +14,12 @@ body{
   margin:0;
   display:flex;
   flex-direction:column;
-  align-items:center
+  align-items:center;
 }
 .cover-picture-container{
   width:100%;
   height:180px;
-  background:url('https://ik.imagekit.io/bigquamsmedia/CampusConnect-NG-reduced.jpeg?updatedAt=1759624459929') center/cover no-repeat
+  background:url('https://ik.imagekit.io/bigquamsmedia/CampusConnect-NG-reduced.jpeg?updatedAt=1759624459929') center/cover no-repeat;
 }
 .main-title{
   margin:20px 0;
@@ -43,16 +43,16 @@ body{
   width:90%;
   max-width:600px;
   border-radius:12px;
-  box-shadow:0 8px 25px rgba(0,0,0,.12)
+  box-shadow:0 8px 25px rgba(0,0,0,.12);
 }
-label{font-weight:600}
+label{font-weight:600;}
 input,select{
   width:100%;
   padding:12px;
   margin-top:6px;
   margin-bottom:15px;
   border-radius:6px;
-  border:1px solid #ced4da
+  border:1px solid #ced4da;
 }
 button{
   background:#007BFF;
@@ -63,9 +63,9 @@ button{
   font-size:1rem;
   font-weight:bold;
   width:100%;
-  cursor:pointer
+  cursor:pointer;
 }
-button:hover{background:#0056b3}
+button:hover{background:#0056b3;}
 .text-input-institution{
   display:none;
   margin-bottom:15px;
@@ -79,7 +79,7 @@ button:hover{background:#0056b3}
   padding:14px;
   border-radius:8px;
   font-weight:bold;
-  text-align:center
+  text-align:center;
 }
 .success-message{
   display:none;
@@ -88,7 +88,7 @@ button:hover{background:#0056b3}
   padding:20px;
   border-radius:8px;
   text-align:center;
-  color:#155724
+  color:#155724;
 }
 .warning-message{
   background:#f8d7da;
@@ -97,7 +97,7 @@ button:hover{background:#0056b3}
   border-radius:8px;
   margin-bottom:15px;
   font-weight:600;
-  text-align:center
+  text-align:center;
 }
 </style>
 </head>
@@ -173,49 +173,94 @@ const stateSelect = document.getElementById("state");
 stateSelect.appendChild(new Option("Choose State", "", true, true));
 states.forEach(s => stateSelect.appendChild(new Option(s,s)));
 
-// Flat list of Nigerian tertiary institutions (universities, polytechnics, colleges)
+// Full flat professional list of Nigerian tertiary institutions
 const institutions=[
-"Abia State University, Uturu",
-"Ahmadu Bello University, Zaria",
-"Ajayi Crowther University, Oyo",
-"Akwa Ibom State University, Ikot Akpaden",
-"University of Abuja, Gwagwalada",
-"University of Agriculture, Makurdi",
-"Babcock University, Ilishan-Remo",
-"Benue State University, Makurdi",
+"Abia State University",
+"Abubakar Tafawa Balewa University",
+"Achievers University",
+"Adamawa State University",
+"Adekunle Ajasin University",
+"Afe Babalola University",
+"Ahmadu Bello University",
+"Akanu Ibiam Federal Polytechnic",
+"Akawe Torkula Polytechnic",
+"A.D. Rufa’i College of Education",
+"Babcock University",
+"Bayero University Kano",
+"Baze University",
+"Bells University of Technology",
+"Benue State University",
+"Bingham University",
+"College of Education, Gindiri",
+"Covenant University",
+"Calvary College of Theology",
+"Delta State University",
+"Dominion College of Education",
+"Ebonyi State University",
+"Elizade University",
+"Enugu State University of Science & Technology",
+"Evangel University",
+"Federal University of Agriculture, Abeokuta",
 "Federal University of Technology, Akure",
-"Federal University of Technology, Minna",
-"Federal University of Technology, Owerri",
-"Federal University Oye-Ekiti",
-"Federal University of Petroleum Resources, Effurun",
-"Federal University, Dutse",
-"Federal University, Gusau",
-"Federal University, Kashere",
-"Federal University, Lafia",
-"Federal University, Lokoja",
-"Federal University, Otuoke",
-"Federal University, Wukari",
-"Federal Polytechnic, Bauchi",
-"Federal Polytechnic, Nekede",
-"Federal Polytechnic, Offa",
-"Federal College of Education, Zaria",
-"Polytechnic Ibadan",
-"University of Lagos, Akoka",
-"University of Ilorin, Ilorin",
-"University of Nigeria, Nsukka",
-"Obafemi Awolowo University, Ile-Ife",
-"Nnamdi Azikiwe University, Awka",
+"Federal University, Oye‑Ekiti",
+"Federal Polytechnic, Bida",
+"Federal Polytechnic, Ilaro",
+"Federal College of Education (Technical), Asaba",
+"Gombe State University",
+"Gregory University",
+"Hallmark University",
+"Hezekiah University",
+"Ibrahim Badamasi Babangida University",
+"Ignatius Ajuru University of Education",
+"Imo State University",
+"Joseph Ayo Babalola University",
+"Jos College of Education",
+"Kaduna State University",
+"Kano University of Science & Technology",
+"Kings University",
+"Kwara State Polytechnic",
+"Lagos State University",
+"Landmark University",
+"Life College of Education",
+"Moshood Abiola Polytechnic",
+"Michael Imodu National Institute",
+"Michael Otedola College of Primary Education",
+"National Open University of Nigeria",
+"Nwafor Orizu College of Education",
+"Obafemi Awolowo University",
+"Olabisi Onabanjo University",
+"Osun State Polytechnic",
+"Pan‑Atlantic University",
+"PAMO University of Medical Sciences",
+"Plateau State University",
+"Rivers State University",
+"Redeemer’s College of Education",
+"Sule Lamido University",
+"Sokoto State University",
+"Tai Solarin University of Education",
+"Temple Gate Polytechnic",
+"University of Abuja",
+"University of Benin",
+"University of Ibadan",
+"University of Jos",
+"University of Lagos",
+"University of Nigeria",
+"University of Port Harcourt",
+"University of Uyo",
+"Veritas University",
+"Vanguard Polytechnic",
+"Wellspring University",
+"Wesley University of Science & Technology",
+"Yobe State University",
+"Yusuf Maitama Sule University",
 "None of the above"
-].sort();
+].sort((a,b)=>a.localeCompare(b));
 
 const instSelect=document.getElementById("institution-select");
 instSelect.appendChild(new Option("Choose Institution","","true",true));
-institutions.forEach(i=>{
-  instSelect.appendChild(new Option(i,i));
-});
+institutions.forEach(i=>instSelect.appendChild(new Option(i,i)));
 
 const otherInput=document.getElementById("other-institution");
-
 instSelect.addEventListener("change",()=>{
   if(instSelect.value==="None of the above"){
     otherInput.style.display="block";
@@ -244,10 +289,8 @@ form.addEventListener("submit",async e=>{
 
   let data=Object.fromEntries(new FormData(form));
 
-  // Validate institution if 'None of the above'
   if(data.institution==="None of the above") data.institution = otherInput.value.trim();
 
-  // VALIDATE ALL FIELDS
   if(!data.name.trim()){ alert("Please enter your name."); return; }
   if(!data.state){ alert("Please select your state."); return; }
   if(!data.institution.trim()){ alert("Please enter your institution."); return; }
@@ -257,7 +300,6 @@ form.addEventListener("submit",async e=>{
   data.phone=phone;
   data.joindate=new Date().toISOString().slice(0,19).replace("T"," ");
 
-  // DUPLICATE CHECK
   const check=await fetch(`${FORM_API_URL}/search?phone=${phone}`);
   const existing=await check.json();
   if(existing.length>0){
@@ -265,7 +307,6 @@ form.addEventListener("submit",async e=>{
     return;
   }
 
-  // SUBMIT
   await fetch(FORM_API_URL,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
@@ -273,11 +314,9 @@ form.addEventListener("submit",async e=>{
   });
 
   localStorage.setItem("campusconnect_submitted","true");
-
   form.style.display="none";
   successBox.style.display="block";
   whatsappBtn.style.display="block";
-
   setTimeout(()=>{window.location.href=WHATSAPP_URL},3000);
 });
 </script>
