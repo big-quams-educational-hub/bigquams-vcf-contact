@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -155,6 +154,7 @@ button:hover{background:#0056b3}
 <script>
 const FORM_API_URL = "https://sheetdb.io/api/v1/lcqbyo961rmzf";
 const WHATSAPP_URL = "https://chat.whatsapp.com/Hiu0e5OTvUIIk6Rq3ndsUA";
+
 const form = document.getElementById("contact-form");
 const successBox = document.getElementById("success-message");
 const whatsappBtn = document.getElementById("whatsappBtn");
@@ -176,6 +176,7 @@ defaultOption.textContent = "Choose State";
 defaultOption.disabled = true;
 defaultOption.selected = true;
 stateSelect.appendChild(defaultOption);
+
 states.forEach(s => {
   const o = document.createElement("option");
   o.value = s;
@@ -183,7 +184,7 @@ states.forEach(s => {
   stateSelect.appendChild(o);
 });
 
-// Tertiary Institutions A-Z with popular abbreviations
+// Institutions with abbreviations
 const institutions = [
 {full:"Abia State University",abbr:"ABSU"},
 {full:"Abubakar Tafawa Balewa University",abbr:"ATBU"},
@@ -195,81 +196,13 @@ const institutions = [
 {full:"Akanu Ibiam Federal Polytechnic",abbr:"AIFP"},
 {full:"Akawe Torkula Polytechnic",abbr:"ATP"},
 {full:"A.D. Rufa’i College of Education",abbr:"ADRC"},
-{full:"Babcock University",abbr:"BU"},
-{full:"Bayero University Kano",abbr:"BUK"},
-{full:"Baze University",abbr:"BZU"},
-{full:"Bells University of Technology",abbr:"BUT"},
-{full:"Benue State University",abbr:"BSU"},
-{full:"Bingham University",abbr:"BU"},
-{full:"College of Education, Gindiri",abbr:"COEG"},
-{full:"Covenant University",abbr:"CU"},
-{full:"Calvary College of Theology",abbr:"CCT"},
-{full:"Delta State University",abbr:"DELSU"},
-{full:"Dominion College of Education",abbr:"DCE"},
-{full:"Ebonyi State University",abbr:"EBSU"},
-{full:"Elizade University",abbr:"EU"},
-{full:"Enugu State University of Science & Technology",abbr:"ESUT"},
-{full:"Evangel University",abbr:"EVU"},
-{full:"Federal University of Agriculture, Abeokuta",abbr:"FUNAAB"},
-{full:"Federal University of Technology, Akure",abbr:"FUTA"},
-{full:"Federal University, Oye-Ekiti",abbr:"FUOYE"},
-{full:"Federal Polytechnic, Bida",abbr:"FPB"},
-{full:"Federal Polytechnic, Ilaro",abbr:"FPI"},
-{full:"Federal College of Education (Technical), Asaba",abbr:"FCETA"},
-{full:"Gombe State University",abbr:"GSU"},
-{full:"Gregory University",abbr:"GU"},
-{full:"Hallmark University",abbr:"HU"},
-{full:"Hezekiah University",abbr:"HZU"},
-{full:"Ibrahim Badamasi Babangida University",abbr:"IBBU"},
-{full:"Ignatius Ajuru University of Education",abbr:"IAUE"},
-{full:"Imo State University",abbr:"IMSU"},
-{full:"Joseph Ayo Babalola University",abbr:"JABU"},
-{full:"Jos College of Education",abbr:"JCE"},
-{full:"Kaduna State University",abbr:"KASU"},
-{full:"Kano University of Science & Technology",abbr:"KUST"},
-{full:"Kings University",abbr:"KU"},
-{full:"Kwara State Polytechnic",abbr:"KSP"},
-{full:"Lagos State University",abbr:"LASU"},
-{full:"Landmark University",abbr:"LU"},
-{full:"Life College of Education",abbr:"LCE"},
-{full:"Moshood Abiola Polytechnic",abbr:"MAPOLY"},
-{full:"Michael Imodu National Institute",abbr:"MINI"},
-{full:"Michael Otedola College of Primary Education",abbr:"MOCPE"},
-{full:"National Open University of Nigeria",abbr:"NOUN"},
-{full:"Nwafor Orizu College of Education",abbr:"NOCE"},
-{full:"Obafemi Awolowo University",abbr:"OAU"},
-{full:"Olabisi Onabanjo University",abbr:"OOU"},
-{full:"Osun State Polytechnic",abbr:"OSPOLY"},
-{full:"Pan-Atlantic University",abbr:"PAU"},
-{full:"PAMO University of Medical Sciences",abbr:"PAMO"),
-{full:"Plateau State University",abbr:"PLSU"},
-{full:"Rivers State University",abbr:"RSU"},
-{full:"Redeemer’s College of Education",abbr:"RCE"},
-{full:"Sule Lamido University",abbr:"SLU"},
-{full:"Sokoto State University",abbr:"SSU"},
-{full:"Tai Solarin University of Education",abbr:"TASUED"},
-{full:"Temple Gate Polytechnic",abbr:"TGP"},
-{full:"University of Abuja",abbr:"UNIABUJA"},
-{full:"University of Benin",abbr:"UNIBEN"},
-{full:"University of Ibadan",abbr:"UI"},
-{full:"University of Jos",abbr:"UNIJOS"},
-{full:"University of Lagos",abbr:"UNILAG"},
-{full:"University of Nigeria",abbr:"UNN"},
-{full:"University of Port Harcourt",abbr:"UNIPORT"},
-{full:"University of Uyo",abbr:"UNIUYO"},
-{full:"Veritas University",abbr:"VERITAS"},
-{full:"Vanguard Polytechnic",abbr:"VPOLY"},
-{full:"Wellspring University",abbr:"WSU"},
-{full:"Wesley University of Science & Technology",abbr:"WUST"},
-{full:"Yobe State University",abbr:"YSU"},
-{full:"Yusuf Maitama Sule University",abbr:"YUMS"},
 {full:"NONE OF THE ABOVE",abbr:"NONE"}
 ];
 
+// Populate institution dropdown alphabetically except NONE OF THE ABOVE
 const instSelect = document.getElementById("institution");
 const otherInput = document.getElementById("other-institution");
 
-// Default placeholder
 const defaultInstOption = document.createElement("option");
 defaultInstOption.value = "";
 defaultInstOption.textContent = "Choose Institution";
@@ -277,7 +210,6 @@ defaultInstOption.disabled = true;
 defaultInstOption.selected = true;
 instSelect.appendChild(defaultInstOption);
 
-// Populate dropdown alphabetically
 institutions.slice(0,-1).sort((a,b)=>a.full.localeCompare(b.full)).forEach(inst=>{
   const o = document.createElement("option");
   o.value = inst.full;
@@ -311,8 +243,9 @@ if(localStorage.getItem("campusconnect_submitted")){
 function normalizePhone(num){
   let n=num.replace(/\D/g,"");
   if(n.startsWith("0")) n=n.slice(1);
-  if(n.startsWith("234")) n=n.slice(3);
-  return n.length===10?"+234"+n:null;
+  if(n.length===10) return "+234"+n;
+  if(n.length===13 && n.startsWith("234")) return "+"+n;
+  return null;
 }
 
 form.addEventListener("submit",async e=>{
