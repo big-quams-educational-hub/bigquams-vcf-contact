@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <title>CampusConnect NG - Join Us</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
 <style>
 body{
   font-family:Segoe UI,Roboto,sans-serif;
@@ -66,10 +64,6 @@ button{
   cursor:pointer;
 }
 button:hover{background:#0056b3;}
-.text-input-institution{
-  display:none;
-  margin-bottom:15px;
-}
 .whatsapp-button{
   display:none;
   margin-top:20px;
@@ -101,7 +95,6 @@ button:hover{background:#0056b3;}
 }
 </style>
 </head>
-
 <body>
 
 <div class="cover-picture-container"></div>
@@ -131,9 +124,10 @@ button:hover{background:#0056b3;}
 <label>State</label>
 <select name="state" id="state" required></select>
 
-<label>Institution</label>
-<select name="institution" id="institution-select" required></select>
-<input type="text" id="other-institution" class="text-input-institution" placeholder="Enter your institution">
+<label>Tertiary Institution</label>
+<select name="institution" id="institution" required></select>
+
+<input type="text" id="other-institution" placeholder="Enter your institution" class="hidden">
 
 <label>WhatsApp Number</label>
 <input type="tel" name="phone" placeholder="08012345678" required>
@@ -162,7 +156,6 @@ const successBox = document.getElementById("success-message");
 const whatsappBtn = document.getElementById("whatsappBtn");
 const warningMsg = document.getElementById("warning-message");
 
-// States
 const states=[
 "Abia","Adamawa","Akwa Ibom","Anambra","FCT Abuja","Bauchi","Bayelsa","Benue","Borno",
 "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","Gombe","Imo","Jigawa","Kaduna",
@@ -170,105 +163,59 @@ const states=[
 "Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara"
 ].sort();
 
-const stateSelect = document.getElementById("state");
-stateSelect.appendChild(new Option("Choose State", "", true, true));
-states.forEach(s => stateSelect.appendChild(new Option(s,s)));
-
-// Institutions with abbreviations
-const institutions=[
-"Abia State University (ABSU)",
-"Abubakar Tafawa Balewa University (ATBU)",
-"Achievers University (AU)",
-"Adamawa State University (ADSU)",
-"Adekunle Ajasin University (AAU)",
-"Afe Babalola University (ABUAD)",
-"Ahmadu Bello University (ABU)",
-"Akanu Ibiam Federal Polytechnic (AIFP)",
-"Akawe Torkula Polytechnic (ATP)",
-"A.D. Rufa’i College of Education (ADRUCOE)",
-"Babcock University (BU)",
-"Bayero University Kano (BUK)",
-"Baze University (BU)",
-"Bells University of Technology (BUT)",
-"Benue State University (BSU)",
-"Bingham University (BU)",
-"College of Education, Gindiri (COEG)",
-"Covenant University (CU)",
-"Calvary College of Theology (CCT)",
-"Delta State University (DELSU)",
-"Dominion College of Education (DCE)",
-"Ebonyi State University (EBSU)",
-"Elizade University (EU)",
-"Enugu State University of Science & Technology (ESUT)",
-"Evangel University (EVU)",
-"Federal University of Agriculture, Abeokuta (FUNAAB)",
-"Federal University of Technology, Akure (FUTA)",
-"Federal University, Oye‑Ekiti (FUOYE)",
-"Federal Polytechnic, Bida (FPB)",
-"Federal Polytechnic, Ilaro (FPI)",
-"Federal College of Education (Technical), Asaba (FCETA)",
-"Gombe State University (GSU)",
-"Gregory University (GU)",
-"Hallmark University (HU)",
-"Hezekiah University (HU)",
-"Ibrahim Badamasi Babangida University (IBBU)",
-"Ignatius Ajuru University of Education (IAUE)",
-"Imo State University (IMSU)",
-"Joseph Ayo Babalola University (JABU)",
-"Jos College of Education (JCE)",
-"Kaduna State University (KASU)",
-"Kano University of Science & Technology (KUST)",
-"Kings University (KU)",
-"Kwara State Polytechnic (KWARAPOLY)",
-"Lagos State University (LASU)",
-"Landmark University (LU)",
-"Life College of Education (LCE)",
-"Moshood Abiola Polytechnic (MAPOLY)",
-"Michael Imodu National Institute (MINI)",
-"Michael Otedola College of Primary Education (MOCPED)",
-"National Open University of Nigeria (NOUN)",
-"Nwafor Orizu College of Education (NOCE)",
-"Obafemi Awolowo University (OAU)",
-"Olabisi Onabanjo University (OOU)",
-"Osun State Polytechnic (OSPOLY)",
-"Pan‑Atlantic University (PAU)",
-"PAMO University of Medical Sciences (PAMOUMS)",
-"Plateau State University (PLASU)",
-"Rivers State University (RSU)",
-"Redeemer’s College of Education (RCE)",
-"Sule Lamido University (SLU)",
-"Sokoto State University (SSU)",
-"Tai Solarin University of Education (TASUED)",
-"Temple Gate Polytechnic (TGP)",
-"University of Abuja (UNIABUJA)",
-"University of Benin (UNIBEN)",
-"University of Ibadan (UI)",
-"University of Jos (UNIJOS)",
-"University of Lagos (UNILAG)",
-"University of Nigeria (UNN)",
-"University of Port Harcourt (UNIPORT)",
-"University of Uyo (UNIUYO)",
-"Veritas University (VU)",
-"Vanguard Polytechnic (VPOLY)",
-"Wellspring University (WU)",
-"Wesley University of Science & Technology (WUST)",
-"Yobe State University (YSU)",
-"Yusuf Maitama Sule University (YUMS)",
+const institutions = [
+"Abia State University (ABSU)","Abubakar Tafawa Balewa University (ATBU)","Achievers University (ACHU)","Adamawa State University (ADSU)","Adekunle Ajasin University (AAU)","Afe Babalola University (ABUAD)","Ahmadu Bello University (ABU)","Akanu Ibiam Federal Polytechnic (AIFP)","Akawe Torkula Polytechnic (ATP)","A.D. Rufa’i College of Education (ADRCOE)",
+"Babcock University (BU)","Bayero University Kano (BUK)","Baze University (BAZEU)","Bells University of Technology (BellsTech)","Benue State University (BSU)","Bingham University (BINU)",
+"College of Education, Gindiri (COEG)","Covenant University (CU)","Calvary College of Theology (CCT)",
+"Delta State University (DELSU)","Dominion College of Education (DCE)",
+"Ebonyi State University (EBSU)","Elizade University (ELIZU)","Enugu State University of Science & Technology (ESUT)","Evangel University (EVU)",
+"Federal University of Agriculture, Abeokuta (FUNAAB)","Federal University of Technology, Akure (FUTA)","Federal University, Oye‑Ekiti (FUOYE)","Federal Polytechnic, Bida (FPB)","Federal Polytechnic, Ilaro (FPI)","Federal College of Education (Technical), Asaba (FCETA)",
+"Gombe State University (GSU)","Gregory University (GU)",
+"Hallmark University (HU)","Hezekiah University (HZU)",
+"Ibrahim Badamasi Babangida University (IBBU)","Ignatius Ajuru University of Education (IAUE)","Imo State University (IMSU)",
+"Joseph Ayo Babalola University (JABU)","Jos College of Education (JCE)",
+"Kaduna State University (KASU)","Kano University of Science & Technology (KUST)","Kings University (KU)","Kwara State Polytechnic (KWASP)",
+"Lagos State University (LASU)","Landmark University (LMU)","Life College of Education (LCE)",
+"Moshood Abiola Polytechnic (MAP)","Michael Imodu National Institute (MINI)","Michael Otedola College of Primary Education (MOCPE)",
+"National Open University of Nigeria (NOUN)","Nwafor Orizu College of Education (NOCE)",
+"Obafemi Awolowo University (OAU)","Olabisi Onabanjo University (OOU)","Osun State Polytechnic (OSPOLY)",
+"Pan‑Atlantic University (PAU)","PAMO University of Medical Sciences (PAMOS)","Plateau State University (PLASU)",
+"Rivers State University (RSU)","Redeemer’s College of Education (RCE)",
+"Sule Lamido University (SLU)","Sokoto State University (SSU)",
+"Tai Solarin University of Education (TASUED)","Temple Gate Polytechnic (TGP)",
+"University of Abuja (UNIABUJA)","University of Benin (UNIBEN)","University of Ibadan (UI)","University of Jos (UNIJOS)","University of Lagos (UNILAG)","University of Nigeria (UNN)","University of Port Harcourt (UNIPORT)","University of Uyo (UNIUYO)",
+"Veritas University (VERITAS)","Vanguard Polytechnic (VPOLY)",
+"Wellspring University (WSU)","Wesley University of Science & Technology (WUST)",
+"Yobe State University (YSU)","Yusuf Maitama Sule University (YMSU)",
 "NONE OF THE ABOVE"
 ].sort((a,b)=>a.localeCompare(b));
 
-const instSelect=document.getElementById("institution-select");
-instSelect.appendChild(new Option("Choose Institution","","true",true));
-institutions.forEach(i=>instSelect.appendChild(new Option(i,i)));
+// STATE DROPDOWN
+const stateSelect = document.getElementById("state");
+const defaultStateOption = document.createElement("option");
+defaultStateOption.value="";
+defaultStateOption.textContent="Choose State";
+defaultStateOption.disabled=true;
+defaultStateOption.selected=true;
+stateSelect.appendChild(defaultStateOption);
+states.forEach(s=>stateSelect.appendChild(new Option(s,s)));
 
-const otherInput=document.getElementById("other-institution");
+// INSTITUTION DROPDOWN
+const instSelect = document.getElementById("institution");
+instSelect.appendChild(new Option("Choose Institution","","true",true));
+const noneOptionIndex = institutions.indexOf("NONE OF THE ABOVE");
+const sortedInstitutions = institutions.filter((_,i)=>i!==noneOptionIndex).sort();
+sortedInstitutions.push("NONE OF THE ABOVE"); // always last
+sortedInstitutions.forEach(i=>instSelect.appendChild(new Option(i,i)));
+
+const otherInput = document.getElementById("other-institution");
 instSelect.addEventListener("change",()=>{
   if(instSelect.value==="NONE OF THE ABOVE"){
-    otherInput.style.display="block";
-    otherInput.required = true;
-  }else{
-    otherInput.style.display="none";
-    otherInput.required = false;
+    otherInput.classList.remove("hidden");
+    otherInput.required=true;
+  } else {
+    otherInput.classList.add("hidden");
+    otherInput.required=false;
   }
 });
 
@@ -278,6 +225,7 @@ if(localStorage.getItem("campusconnect_submitted")){
   warningMsg.innerHTML="❌ You have already submitted from this device. For any issues, contact <a href='https://wa.me/+2349169374257' target='_blank'>CampusConnect NG Admin</a> via WhatsApp.";
 }
 
+// PHONE NORMALIZATION
 function normalizePhone(num){
   let n=num.replace(/\D/g,"");
   if(n.startsWith("0")) n=n.slice(1);
@@ -285,29 +233,34 @@ function normalizePhone(num){
   return n.length===10?"+234"+n:null;
 }
 
+// SUBMIT FORM
 form.addEventListener("submit",async e=>{
   e.preventDefault();
-
   let data=Object.fromEntries(new FormData(form));
 
-  if(data.institution==="NONE OF THE ABOVE") data.institution = otherInput.value.trim();
+  // IF NONE OF THE ABOVE, take manual input
+  if(data.institution==="NONE OF THE ABOVE"){
+    if(!otherInput.value.trim()){
+      alert("Please enter your institution name.");
+      return;
+    }
+    data.institution=otherInput.value.trim();
+  }
 
-  if(!data.name.trim()){ alert("Please enter your name."); return; }
-  if(!data.state){ alert("Please select your state."); return; }
-  if(!data.institution.trim()){ alert("Please enter your institution."); return; }
-
+  // VALIDATION
+  if(!data.name.trim()){alert("Please enter your name."); return;}
+  if(!data.state){alert("Please select your state."); return;}
   const phone=normalizePhone(data.phone);
-  if(!phone){ alert("Invalid Nigerian phone number."); return; }
+  if(!phone){alert("Invalid Nigerian WhatsApp number."); return;}
   data.phone=phone;
   data.joindate=new Date().toISOString().slice(0,19).replace("T"," ");
 
+  // DUPLICATE CHECK
   const check=await fetch(`${FORM_API_URL}/search?phone=${phone}`);
   const existing=await check.json();
-  if(existing.length>0){
-    alert("This phone number has already been registered.");
-    return;
-  }
+  if(existing.length>0){alert("This phone number has already been registered."); return;}
 
+  // SUBMIT
   await fetch(FORM_API_URL,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
@@ -315,9 +268,11 @@ form.addEventListener("submit",async e=>{
   });
 
   localStorage.setItem("campusconnect_submitted","true");
+
   form.style.display="none";
   successBox.style.display="block";
   whatsappBtn.style.display="block";
+
   setTimeout(()=>{window.location.href=WHATSAPP_URL},3000);
 });
 </script>
