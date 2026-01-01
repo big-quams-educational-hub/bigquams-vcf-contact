@@ -128,7 +128,8 @@ button:hover{background:#0056b3}
 <select name="state" id="state" required></select>
 
 <label>Tertiary Institution</label>
-<input type="text" name="institution" placeholder="Enter your university/polytechnic" required>
+<select name="institution" id="institution" required></select>
+<input type="text" id="custom-institution" placeholder="Enter your institution" style="display:none; margin-bottom:15px;">
 
 <label>Phone Number</label>
 <input type="tel" name="phone" placeholder="08012345678" required>
@@ -164,21 +165,34 @@ const states=[
 "Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara"
 ].sort();
 
+const institutions=[
+"University of Ilorin (UNILORIN)","University of Lagos (UNILAG)","Ahmadu Bello University (ABU)","Obafemi Awolowo University (OAU)","University of Nigeria Nsukka (UNN)",
+"University of Benin (UNIBEN)","University of Ibadan (UI)","Lagos State University (LASU)","Federal University of Technology Minna (FUTMINNA)","Federal University of Technology Akure (FUTA)",
+// … add all Nigerian institutions here
+"None of the above"
+].sort();
+
 const stateSelect = document.getElementById("state");
+const instSelect = document.getElementById("institution");
+const customInst = document.getElementById("custom-institution");
 
-// Add default placeholder
-const defaultOption = document.createElement("option");
-defaultOption.value = "";
-defaultOption.textContent = "Choose State";
-defaultOption.disabled = true;
-defaultOption.selected = true;
-stateSelect.appendChild(defaultOption);
+// Default placeholder
+stateSelect.innerHTML = "<option value='' selected disabled>Choose State</option>";
+states.forEach(s=>{const o=document.createElement("option"); o.value=s; o.textContent=s; stateSelect.appendChild(o);});
 
-states.forEach(s => {
-  const o = document.createElement("option");
-  o.value = s;
-  o.textContent = s;
-  stateSelect.appendChild(o);
+// Institution options
+instSelect.innerHTML = "<option value='' selected disabled>Choose Institution</option>";
+institutions.forEach(i=>{const o=document.createElement("option"); o.value=i; o.textContent=i; instSelect.appendChild(o);});
+
+// Show text input if "None of the above" is selected
+instSelect.addEventListener("change",()=>{
+  if(instSelect.value==="None of the above"){
+    customInst.style.display="block";
+    customInst.required=true;
+  } else {
+    customInst.style.display="none";
+    customInst.required=false;
+  }
 });
 
 // DEVICE LOCK
@@ -199,34 +213,27 @@ form.addEventListener("submit",async e=>{
 
   let data=Object.fromEntries(new FormData(form));
 
-  // VALIDATE ALL FIELDS
-  if(!data.name.trim()){
-    alert("Please enter your name.");
-    return;
+  // Use custom institution if applicable
+  if(data.institution==="None of the above"){
+    data.institution = customInst.value.trim();
+    if(!data.institution){
+      alert("Please enter your institution name.");
+      return;
+    }
   }
-  if(!data.state){
-    alert("Please select your state.");
-    return;
-  }
-  if(!data.institution.trim()){
-    alert("Please enter your tertiary institution.");
-    return;
-  }
+
+  // VALIDATION
+  if(!data.name.trim()){ alert("Please enter your name."); return; }
+  if(!data.state){ alert("Please select your state."); return; }
   const phone=normalizePhone(data.phone);
-  if(!phone){
-    alert("Invalid Nigerian phone number.");
-    return;
-  }
+  if(!phone){ alert("Invalid Nigerian phone number."); return; }
   data.phone=phone;
   data.joindate=new Date().toISOString().slice(0,19).replace("T"," ");
 
   // DUPLICATE CHECK
   const check=await fetch(`${FORM_API_URL}/search?phone=${phone}`);
   const existing=await check.json();
-  if(existing.length>0){
-    alert("This phone number has already been registered.");
-    return;
-  }
+  if(existing.length>0){ alert("This phone number has already been registered."); return; }
 
   // SUBMIT
   await fetch(FORM_API_URL,{
