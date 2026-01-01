@@ -66,6 +66,10 @@ button{
   cursor:pointer
 }
 button:hover{background:#0056b3}
+.text-input-institution{
+  display:none;
+  margin-bottom:15px;
+}
 .whatsapp-button{
   display:none;
   margin-top:20px;
@@ -127,11 +131,11 @@ button:hover{background:#0056b3}
 <label>State</label>
 <select name="state" id="state" required></select>
 
-<label>Tertiary Institution</label>
-<select name="institution" id="institution" required></select>
-<input type="text" id="custom-institution" placeholder="Enter your institution" style="display:none; margin-bottom:15px;">
+<label>Institution</label>
+<select name="institution" id="institution-select" required></select>
+<input type="text" id="other-institution" class="text-input-institution" placeholder="Enter your institution">
 
-<label>Phone Number</label>
+<label>WhatsApp Number</label>
 <input type="tel" name="phone" placeholder="08012345678" required>
 
 <input type="hidden" name="membertype" value="New">
@@ -165,33 +169,60 @@ const states=[
 "Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara"
 ].sort();
 
+const stateSelect = document.getElementById("state");
+stateSelect.appendChild(new Option("Choose State", "", true, true));
+states.forEach(s => stateSelect.appendChild(new Option(s,s)));
+
+// Flat list of Nigerian tertiary institutions (universities, polytechnics, colleges)
 const institutions=[
-"University of Ilorin (UNILORIN)","University of Lagos (UNILAG)","Ahmadu Bello University (ABU)","Obafemi Awolowo University (OAU)","University of Nigeria Nsukka (UNN)",
-"University of Benin (UNIBEN)","University of Ibadan (UI)","Lagos State University (LASU)","Federal University of Technology Minna (FUTMINNA)","Federal University of Technology Akure (FUTA)",
-// … add all Nigerian institutions here
+"Abia State University, Uturu",
+"Ahmadu Bello University, Zaria",
+"Ajayi Crowther University, Oyo",
+"Akwa Ibom State University, Ikot Akpaden",
+"University of Abuja, Gwagwalada",
+"University of Agriculture, Makurdi",
+"Babcock University, Ilishan-Remo",
+"Benue State University, Makurdi",
+"Federal University of Technology, Akure",
+"Federal University of Technology, Minna",
+"Federal University of Technology, Owerri",
+"Federal University Oye-Ekiti",
+"Federal University of Petroleum Resources, Effurun",
+"Federal University, Dutse",
+"Federal University, Gusau",
+"Federal University, Kashere",
+"Federal University, Lafia",
+"Federal University, Lokoja",
+"Federal University, Otuoke",
+"Federal University, Wukari",
+"Federal Polytechnic, Bauchi",
+"Federal Polytechnic, Nekede",
+"Federal Polytechnic, Offa",
+"Federal College of Education, Zaria",
+"Polytechnic Ibadan",
+"University of Lagos, Akoka",
+"University of Ilorin, Ilorin",
+"University of Nigeria, Nsukka",
+"Obafemi Awolowo University, Ile-Ife",
+"Nnamdi Azikiwe University, Awka",
 "None of the above"
 ].sort();
 
-const stateSelect = document.getElementById("state");
-const instSelect = document.getElementById("institution");
-const customInst = document.getElementById("custom-institution");
+const instSelect=document.getElementById("institution-select");
+instSelect.appendChild(new Option("Choose Institution","","true",true));
+institutions.forEach(i=>{
+  instSelect.appendChild(new Option(i,i));
+});
 
-// Default placeholder
-stateSelect.innerHTML = "<option value='' selected disabled>Choose State</option>";
-states.forEach(s=>{const o=document.createElement("option"); o.value=s; o.textContent=s; stateSelect.appendChild(o);});
+const otherInput=document.getElementById("other-institution");
 
-// Institution options
-instSelect.innerHTML = "<option value='' selected disabled>Choose Institution</option>";
-institutions.forEach(i=>{const o=document.createElement("option"); o.value=i; o.textContent=i; instSelect.appendChild(o);});
-
-// Show text input if "None of the above" is selected
 instSelect.addEventListener("change",()=>{
   if(instSelect.value==="None of the above"){
-    customInst.style.display="block";
-    customInst.required=true;
-  } else {
-    customInst.style.display="none";
-    customInst.required=false;
+    otherInput.style.display="block";
+    otherInput.required = true;
+  }else{
+    otherInput.style.display="none";
+    otherInput.required = false;
   }
 });
 
@@ -213,18 +244,14 @@ form.addEventListener("submit",async e=>{
 
   let data=Object.fromEntries(new FormData(form));
 
-  // Use custom institution if applicable
-  if(data.institution==="None of the above"){
-    data.institution = customInst.value.trim();
-    if(!data.institution){
-      alert("Please enter your institution name.");
-      return;
-    }
-  }
+  // Validate institution if 'None of the above'
+  if(data.institution==="None of the above") data.institution = otherInput.value.trim();
 
-  // VALIDATION
+  // VALIDATE ALL FIELDS
   if(!data.name.trim()){ alert("Please enter your name."); return; }
   if(!data.state){ alert("Please select your state."); return; }
+  if(!data.institution.trim()){ alert("Please enter your institution."); return; }
+
   const phone=normalizePhone(data.phone);
   if(!phone){ alert("Invalid Nigerian phone number."); return; }
   data.phone=phone;
@@ -233,7 +260,10 @@ form.addEventListener("submit",async e=>{
   // DUPLICATE CHECK
   const check=await fetch(`${FORM_API_URL}/search?phone=${phone}`);
   const existing=await check.json();
-  if(existing.length>0){ alert("This phone number has already been registered."); return; }
+  if(existing.length>0){
+    alert("This phone number has already been registered.");
+    return;
+  }
 
   // SUBMIT
   await fetch(FORM_API_URL,{
