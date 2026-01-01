@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +20,7 @@ body{
 .cover-picture-container{
   width:100%;
   height:180px;
-  background:url('https://ik.imagekit.io/bigquamsmedia/CampusConnect-NG-reduced.jpeg?updatedAt=1759624459929') center/cover no-repeat;
+  background:url('https://ik.imagekit.io/bigquamsmedia/CampusConnect-NG-reduced.jpeg?updatedAt=1759624459929') center/cover no-repeat
 }
 .main-title{
   margin:20px 0;
@@ -45,15 +46,14 @@ body{
   border-radius:12px;
   box-shadow:0 8px 25px rgba(0,0,0,.12);
 }
-label{font-weight:600;margin-top:10px;display:block;}
+label{font-weight:600}
 input,select{
   width:100%;
   padding:12px;
   margin-top:6px;
   margin-bottom:15px;
   border-radius:6px;
-  border:1px solid #ced4da;
-  font-size:1rem;
+  border:1px solid #ced4da
 }
 button{
   background:#007BFF;
@@ -64,9 +64,9 @@ button{
   font-size:1rem;
   font-weight:bold;
   width:100%;
-  cursor:pointer;
+  cursor:pointer
 }
-button:hover{background:#0056b3;}
+button:hover{background:#0056b3}
 .whatsapp-button{
   display:none;
   margin-top:20px;
@@ -76,7 +76,7 @@ button:hover{background:#0056b3;}
   padding:14px;
   border-radius:8px;
   font-weight:bold;
-  text-align:center;
+  text-align:center
 }
 .success-message{
   display:none;
@@ -85,7 +85,7 @@ button:hover{background:#0056b3;}
   padding:20px;
   border-radius:8px;
   text-align:center;
-  color:#155724;
+  color:#155724
 }
 .warning-message{
   background:#f8d7da;
@@ -94,7 +94,7 @@ button:hover{background:#0056b3;}
   border-radius:8px;
   margin-bottom:15px;
   font-weight:600;
-  text-align:center;
+  text-align:center
 }
 .hidden{display:none;}
 </style>
@@ -124,15 +124,14 @@ button:hover{background:#0056b3;}
 
 <form id="contact-form">
 <label>Name</label>
-<input type="text" name="name" placeholder="Your full name" required>
+<input type="text" name="name" required>
 
 <label>State</label>
 <select name="state" id="state" required></select>
 
 <label>Tertiary Institution</label>
 <select name="institution" id="institution" required></select>
-
-<input type="text" name="other_institution" id="other-institution" placeholder="Enter your institution" class="hidden">
+<input type="text" name="other_institution" id="other-institution" class="hidden" placeholder="Enter your institution name">
 
 <label>WhatsApp Number</label>
 <input type="tel" name="phone" placeholder="08012345678" required>
@@ -156,7 +155,6 @@ button:hover{background:#0056b3;}
 <script>
 const FORM_API_URL = "https://sheetdb.io/api/v1/lcqbyo961rmzf";
 const WHATSAPP_URL = "https://chat.whatsapp.com/Hiu0e5OTvUIIk6Rq3ndsUA";
-
 const form = document.getElementById("contact-form");
 const successBox = document.getElementById("success-message");
 const whatsappBtn = document.getElementById("whatsappBtn");
@@ -170,18 +168,14 @@ const states=[
 ].sort();
 
 const stateSelect = document.getElementById("state");
-const instSelect = document.getElementById("institution");
-const otherInput = document.getElementById("other-institution");
 
-// Add default placeholder for states
-const defaultState = document.createElement("option");
-defaultState.value = "";
-defaultState.textContent = "Choose State";
-defaultState.disabled = true;
-defaultState.selected = true;
-stateSelect.appendChild(defaultState);
-
-// Populate states
+// Default placeholder
+const defaultOption = document.createElement("option");
+defaultOption.value = "";
+defaultOption.textContent = "Choose State";
+defaultOption.disabled = true;
+defaultOption.selected = true;
+stateSelect.appendChild(defaultOption);
 states.forEach(s => {
   const o = document.createElement("option");
   o.value = s;
@@ -189,37 +183,115 @@ states.forEach(s => {
   stateSelect.appendChild(o);
 });
 
-// Full list of institutions with abbreviations (sample, can extend)
+// Tertiary Institutions A-Z with popular abbreviations
 const institutions = [
-  {name:"Abia State University",abbr:"ABSU"},
-  {name:"Abubakar Tafawa Balewa University",abbr:"ATBU"},
-  {name:"Achievers University",abbr:"AU"},
-  {name:"Adamawa State University",abbr:"ADSU"},
-  {name:"Adekunle Ajasin University",abbr:"AAU"},
-  {name:"Afe Babalola University",abbr:"ABUAD"},
-  {name:"Ahmadu Bello University",abbr:"ABU"},
-  {name:"Akanu Ibiam Federal Polytechnic",abbr:"AIFP"},
-  {name:"Akawe Torkula Polytechnic",abbr:"ATP"},
-  {name:"A.D. Rufa’i College of Education",abbr:"ADRUCE"},
-  // … add all other institutions here in same format …
-  {name:"Yusuf Maitama Sule University",abbr:"YMSU"}
+{full:"Abia State University",abbr:"ABSU"},
+{full:"Abubakar Tafawa Balewa University",abbr:"ATBU"},
+{full:"Achievers University",abbr:"AU"},
+{full:"Adamawa State University",abbr:"ADSU"},
+{full:"Adekunle Ajasin University",abbr:"AAU"},
+{full:"Afe Babalola University",abbr:"ABU"},
+{full:"Ahmadu Bello University",abbr:"ABU ZARIA"},
+{full:"Akanu Ibiam Federal Polytechnic",abbr:"AIFP"},
+{full:"Akawe Torkula Polytechnic",abbr:"ATP"},
+{full:"A.D. Rufa’i College of Education",abbr:"ADRC"},
+{full:"Babcock University",abbr:"BU"},
+{full:"Bayero University Kano",abbr:"BUK"},
+{full:"Baze University",abbr:"BZU"},
+{full:"Bells University of Technology",abbr:"BUT"},
+{full:"Benue State University",abbr:"BSU"},
+{full:"Bingham University",abbr:"BU"},
+{full:"College of Education, Gindiri",abbr:"COEG"},
+{full:"Covenant University",abbr:"CU"},
+{full:"Calvary College of Theology",abbr:"CCT"},
+{full:"Delta State University",abbr:"DELSU"},
+{full:"Dominion College of Education",abbr:"DCE"},
+{full:"Ebonyi State University",abbr:"EBSU"},
+{full:"Elizade University",abbr:"EU"},
+{full:"Enugu State University of Science & Technology",abbr:"ESUT"},
+{full:"Evangel University",abbr:"EVU"},
+{full:"Federal University of Agriculture, Abeokuta",abbr:"FUNAAB"},
+{full:"Federal University of Technology, Akure",abbr:"FUTA"},
+{full:"Federal University, Oye-Ekiti",abbr:"FUOYE"},
+{full:"Federal Polytechnic, Bida",abbr:"FPB"},
+{full:"Federal Polytechnic, Ilaro",abbr:"FPI"},
+{full:"Federal College of Education (Technical), Asaba",abbr:"FCETA"},
+{full:"Gombe State University",abbr:"GSU"},
+{full:"Gregory University",abbr:"GU"},
+{full:"Hallmark University",abbr:"HU"},
+{full:"Hezekiah University",abbr:"HZU"},
+{full:"Ibrahim Badamasi Babangida University",abbr:"IBBU"},
+{full:"Ignatius Ajuru University of Education",abbr:"IAUE"},
+{full:"Imo State University",abbr:"IMSU"},
+{full:"Joseph Ayo Babalola University",abbr:"JABU"},
+{full:"Jos College of Education",abbr:"JCE"},
+{full:"Kaduna State University",abbr:"KASU"},
+{full:"Kano University of Science & Technology",abbr:"KUST"},
+{full:"Kings University",abbr:"KU"},
+{full:"Kwara State Polytechnic",abbr:"KSP"},
+{full:"Lagos State University",abbr:"LASU"},
+{full:"Landmark University",abbr:"LU"},
+{full:"Life College of Education",abbr:"LCE"},
+{full:"Moshood Abiola Polytechnic",abbr:"MAPOLY"},
+{full:"Michael Imodu National Institute",abbr:"MINI"},
+{full:"Michael Otedola College of Primary Education",abbr:"MOCPE"},
+{full:"National Open University of Nigeria",abbr:"NOUN"},
+{full:"Nwafor Orizu College of Education",abbr:"NOCE"},
+{full:"Obafemi Awolowo University",abbr:"OAU"},
+{full:"Olabisi Onabanjo University",abbr:"OOU"},
+{full:"Osun State Polytechnic",abbr:"OSPOLY"},
+{full:"Pan-Atlantic University",abbr:"PAU"},
+{full:"PAMO University of Medical Sciences",abbr:"PAMO"),
+{full:"Plateau State University",abbr:"PLSU"},
+{full:"Rivers State University",abbr:"RSU"},
+{full:"Redeemer’s College of Education",abbr:"RCE"},
+{full:"Sule Lamido University",abbr:"SLU"},
+{full:"Sokoto State University",abbr:"SSU"},
+{full:"Tai Solarin University of Education",abbr:"TASUED"},
+{full:"Temple Gate Polytechnic",abbr:"TGP"},
+{full:"University of Abuja",abbr:"UNIABUJA"},
+{full:"University of Benin",abbr:"UNIBEN"},
+{full:"University of Ibadan",abbr:"UI"},
+{full:"University of Jos",abbr:"UNIJOS"},
+{full:"University of Lagos",abbr:"UNILAG"},
+{full:"University of Nigeria",abbr:"UNN"},
+{full:"University of Port Harcourt",abbr:"UNIPORT"},
+{full:"University of Uyo",abbr:"UNIUYO"},
+{full:"Veritas University",abbr:"VERITAS"},
+{full:"Vanguard Polytechnic",abbr:"VPOLY"},
+{full:"Wellspring University",abbr:"WSU"},
+{full:"Wesley University of Science & Technology",abbr:"WUST"},
+{full:"Yobe State University",abbr:"YSU"},
+{full:"Yusuf Maitama Sule University",abbr:"YUMS"},
+{full:"NONE OF THE ABOVE",abbr:"NONE"}
 ];
 
-// Populate institutions dropdown A–Z
-institutions.forEach(inst=>{
+const instSelect = document.getElementById("institution");
+const otherInput = document.getElementById("other-institution");
+
+// Default placeholder
+const defaultInstOption = document.createElement("option");
+defaultInstOption.value = "";
+defaultInstOption.textContent = "Choose Institution";
+defaultInstOption.disabled = true;
+defaultInstOption.selected = true;
+instSelect.appendChild(defaultInstOption);
+
+// Populate dropdown alphabetically
+institutions.slice(0,-1).sort((a,b)=>a.full.localeCompare(b.full)).forEach(inst=>{
   const o = document.createElement("option");
-  o.value = inst.name;
-  o.textContent = `${inst.name} (${inst.abbr})`;
+  o.value = inst.full;
+  o.textContent = `${inst.full} (${inst.abbr})`;
   instSelect.appendChild(o);
 });
 
-// Add NONE OF THE ABOVE as last option
+// Add NONE OF THE ABOVE last
 const noneOption = document.createElement("option");
 noneOption.value = "NONE OF THE ABOVE";
 noneOption.textContent = "NONE OF THE ABOVE";
 instSelect.appendChild(noneOption);
 
-// Show text input if NONE OF THE ABOVE is selected
+// Show manual input only if NONE OF THE ABOVE
 instSelect.addEventListener("change",()=>{
   if(instSelect.value==="NONE OF THE ABOVE"){
     otherInput.classList.remove("hidden");
@@ -230,13 +302,12 @@ instSelect.addEventListener("change",()=>{
   }
 });
 
-// Device lock
+// DEVICE LOCK
 if(localStorage.getItem("campusconnect_submitted")){
   form.style.display="none";
   warningMsg.innerHTML="❌ You have already submitted from this device. For any issues, contact <a href='https://wa.me/+2349169374257' target='_blank'>CampusConnect NG Admin</a> via WhatsApp.";
 }
 
-// Phone normalization
 function normalizePhone(num){
   let n=num.replace(/\D/g,"");
   if(n.startsWith("0")) n=n.slice(1);
@@ -244,31 +315,46 @@ function normalizePhone(num){
   return n.length===10?"+234"+n:null;
 }
 
-// Submit form
 form.addEventListener("submit",async e=>{
   e.preventDefault();
-  let data = Object.fromEntries(new FormData(form));
+
+  let data=Object.fromEntries(new FormData(form));
 
   if(!data.name.trim()){
-    alert("Please enter your name."); return;
+    alert("Please enter your name.");
+    return;
   }
-  if(!data.state){ alert("Please select your state."); return; }
-  if(data.institution==="NONE OF THE ABOVE"){
-    if(!data.other_institution.trim()){ alert("Please enter your institution."); return; }
-    data.institution = data.other_institution.trim();
+  if(!data.state){
+    alert("Please select your state.");
+    return;
+  }
+  if(instSelect.value==="NONE OF THE ABOVE" && !data.other_institution.trim()){
+    alert("Please enter your institution.");
+    return;
+  }
+  if(instSelect.value!=="NONE OF THE ABOVE"){
+    data.institution = instSelect.value;
+  } else {
+    data.institution = data.other_institution;
   }
 
-  const phone = normalizePhone(data.phone);
-  if(!phone){ alert("Invalid Nigerian phone number."); return; }
-  data.phone = phone;
-  data.joindate = new Date().toISOString().slice(0,19).replace("T"," ");
+  const phone=normalizePhone(data.phone);
+  if(!phone){
+    alert("Invalid Nigerian phone number.");
+    return;
+  }
+  data.phone=phone;
+  data.joindate=new Date().toISOString().slice(0,19).replace("T"," ");
 
-  // Duplicate check
-  const check = await fetch(`${FORM_API_URL}/search?phone=${phone}`);
-  const existing = await check.json();
-  if(existing.length>0){ alert("This phone number has already been registered."); return; }
+  // DUPLICATE CHECK
+  const check=await fetch(`${FORM_API_URL}/search?phone=${phone}`);
+  const existing=await check.json();
+  if(existing.length>0){
+    alert("This phone number has already been registered.");
+    return;
+  }
 
-  // Submit
+  // SUBMIT
   await fetch(FORM_API_URL,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
@@ -276,6 +362,7 @@ form.addEventListener("submit",async e=>{
   });
 
   localStorage.setItem("campusconnect_submitted","true");
+
   form.style.display="none";
   successBox.style.display="block";
   whatsappBtn.style.display="block";
